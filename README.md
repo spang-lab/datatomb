@@ -16,6 +16,8 @@ Database secrets are stored in environment variables `POSTGRES_USER` and `POSTGR
 ### authserver
   - `host`
   - `port`
+  - `usergroup`
+  - `admingroup`
 
 ## API endpoints
 Below is prefixed with `/api/v1/`.
@@ -25,9 +27,9 @@ returns a valid token for `<username>`. Need to have a valid ssh key pair and th
 TODO: think about the process and document.
 
 ### `/meta/<hash>`
-If nothing else is given, returns all metadata of `<hash>`. May be limited to a single field by supplying a `only`-key, e.g. `only=tags` or so. Permissible keys are all columns of the `datasets` table.
+If nothing else is given, returns all metadata of `<hash>` as json object.
 ### `/search/<query>`
-where query may be any key-value pair combining
+returns a list of hashes. `query` may be any key-value pair combining
   - `any`: free text search in all fields
   - `creator`: datasets authored by some specific user
   - `tag`: dataset has tag attached
@@ -53,3 +55,6 @@ table `tags(id primary, name)`
 table `users(id primary, name)`
 table `access(id primary, user => users.id, timestamp, dataset => datasets.id)`
 table `datasets(id primary, hash, tags => [tags.id], description, creator => users.id, timestamp)`
+
+## Auth server
+uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.
