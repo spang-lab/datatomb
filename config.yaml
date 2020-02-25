@@ -1,0 +1,5 @@
+Database:
+  user: testuser
+
+Server:
+  Port: 8080

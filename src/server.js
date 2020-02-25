@@ -1,14 +1,16 @@
 import Koa from "koa";
-import getApiRouter from "./api/router.js";
+import getBaseRouter from "./api/router.js";
 
-const server = async() => {
+const server = async(port) => {
     const app = new Koa();
-    const router = await getApiRouter();
+    const router = await getBaseRouter();
     app.use(router.routes());
     app.use(async ctx => {
         ctx.body = 'Hello World';
     });
-    app.listen(8080);
+
+    console.log(`port: ${port}`);
+    app.listen(port);
 };
 
 export default server;

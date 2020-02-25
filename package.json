@@ -4,6 +4,7 @@
   "description": "HTTP server for data sets.",
   "main": "index.js",
   "dependencies": {
+    "js-yaml": "^3.13.1",
     "koa": "^2.11.0",
     "koa-router": "^8.0.8",
     "nodemon": "^2.0.2"
