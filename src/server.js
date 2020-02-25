@@ -5,7 +5,7 @@ const server = async(port) => {
     const app = new Koa();
     const router = await getBaseRouter();
     app.use(router.routes());
-    app.use(async ctx => {
+    app.use(async (ctx) => {
         ctx.body = 'Hello World';
     });
 
