@@ -5,16 +5,26 @@
   "main": "index.js",
   "dependencies": {
     "koa": "^2.11.0",
+    "koa-router": "^8.0.8",
     "nodemon": "^2.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.18.3",
+    "eslint-plugin-react-hooks": "^1.7.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
     "url": "ssh://git@gitlab.spang-lab.de:222/containers/datatomb.git"
   },
   "author": "Jakob Simeth, Michael Huttner",
-  "license": "MIT"
+  "license": "MIT",
+  "type": "module"
 }
