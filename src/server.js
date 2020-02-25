@@ -14,7 +14,7 @@ const server = async () => {
 
     app.use(router.routes());
     app.use(async (ctx) => {
-        ctx.body = 'Hello World';
+        ctx.body = 'This is datatomb speaking. Refer to https://gitlab.spang-lab.de/containers/datatomb/blob/master/README.md for API documentation';
     });
 
 
