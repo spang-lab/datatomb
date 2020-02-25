@@ -10,6 +10,7 @@ HTTP server for data sets.
   - `host`
   - `database`
   - `port`
+
 Database secrets are stored in environment variables `POSTGRES_USER` and `POSTGRES_PASSWORD`
 
 ### authserver
@@ -17,6 +18,8 @@ Database secrets are stored in environment variables `POSTGRES_USER` and `POSTGR
   - `port`
 
 ## API endpoints
+Below is prefixed with `/api/v1/`.
+
 ### `/token/<username>`
 returns a valid token for `<username>`. Need to have a valid ssh key pair and the public key must be known to the auth server.
 TODO: think about the process and document.
@@ -31,6 +34,8 @@ where query may be any key-value pair combining
   - `description`: free text search in description field
   - `after`: created after some time point (unix time)
   - `before`: created before some time point (unix time)
+  - `lastAccessBefore`: last access before some time point (unix time). Only available for admins and mainly used to identify deletion candidates
+
 TODO: anything else??
 ### `/accessed/<hash>`
 If you are the owner of the dataset `<hash>` (or admin), you may see the access history to that data set.
@@ -38,6 +43,8 @@ If you are the owner of the dataset `<hash>` (or admin), you may see the access 
 downloads dataset
 ### `/push/<hash>`
 uploads dataset
+### `/rm`
+If you are the owner of a dataset or admin (TODO: maybe don't allow this?!?! maybe only admin may?), you may remove your published data sets.
 ### `/healthy`
 return 1 if healthy.
 
