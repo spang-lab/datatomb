@@ -51,10 +51,10 @@ If you are the owner of a dataset or admin (TODO: maybe don't allow this?!?! may
 return 1 if healthy.
 
 ## Database schema
-table `tags(id primary, name)`
-table `users(id primary, name)`
-table `access(id primary, user => users.id, timestamp, dataset => datasets.id)`
-table `datasets(id primary, hash, tags => [tags.id], description, creator => users.id, timestamp)`
+  - table `tags(id primary, name)`
+  - table `users(id primary, name)`
+  - table `access(id primary, user => users.id, timestamp, dataset => datasets.id)`
+  - table `datasets(id primary, hash, tags => [tags.id], description, creator => users.id, timestamp)`
 
 ## Auth server
 uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.
