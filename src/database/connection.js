@@ -1,9 +1,12 @@
 /* eslint-disable no-await-in-loop */
 import pgPromise from 'pg-promise';
 import {
-    log,
     getSecrets,
-} from '../util/index.js';
+} from '../util/config.js';
+
+import {
+    log
+} from '../util/log.js';
 
 import { get as getConfig } from '../context/config.js';
 

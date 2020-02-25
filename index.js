@@ -1,11 +1,9 @@
 /* eslint-disable no-console */
 import { server } from './src/index.js';
-import yaml from 'js-yaml';
-import fs from 'fs';
+import config from './src/util/config.js';
 
 (async () => {
     try {
-        const config = yaml.safeLoad(fs.readFileSync('./config.yaml', 'utf8'));
         console.log(config);
         await server(config.Server.Port);
     } catch (err) {
