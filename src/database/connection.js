@@ -1,14 +1,9 @@
 /* eslint-disable no-await-in-loop */
 import pgPromise from 'pg-promise';
 import {
-    getSecrets,
-} from '../util/config.js';
-
-import {
-    log
-} from '../util/log.js';
-
-import { get as getConfig } from '../context/config.js';
+    log,
+    getConfig
+} from '../util/index.js';
 
 const state = {
     pgp: null,
@@ -36,8 +31,9 @@ const isReady = async () => {
 };
 
 export const connect = async () => {
-    const { db } = getConfig();
-    const { postgresUser, postgresPassword, debug } = await getSecrets();
+    const config = getConfig();
+    const db = config.database;
+    const { postgresUser, postgresPassword, debug } = config.secrets;
     log(`
         Host: ${db.host},
         Database: ${db.database}

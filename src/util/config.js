@@ -5,7 +5,7 @@ import { log } from './logger.js';
 const fsPromise = fs.promises;
 let config = null;
 
-export const get = () => config;
+export const getConfig = () => config;
 
 
 const loadFile = async (path) => {
@@ -25,15 +25,12 @@ const getSecrets = () => {
     return secrets;
 };
 
-const createConfig = async () => {
+export const createConfig = async () => {
     log('Loading confiuration...');
     const data = await loadFile('config.yaml');
     const secrets = await getSecrets();
     data.secrets = secrets;
     log('Config loaded successfully');
+    config = data;
     return config;
-};
-
-export const create = async () => {
-    config = await createConfig();
 };

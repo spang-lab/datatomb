@@ -1,5 +1,7 @@
-Database:
-  user: testuser
+database:
+  host: postgres.spang-lab.de
+  database: datatomb
+  port: 5432
 
-Server:
-  Port: 8080
+server:
+  port: 8080
