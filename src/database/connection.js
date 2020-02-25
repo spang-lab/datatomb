@@ -33,7 +33,10 @@ const isReady = async () => {
 export const connect = async () => {
     const config = getConfig();
     const db = config.database;
-    const { postgresUser, postgresPassword, debug } = config.secrets;
+    const { POSTGRES_USER : postgresUser,
+            POSTGRES_PASSWORD : postgresPassword,
+            DEBUG : debug }
+          = config.secrets;
     log(`
         Host: ${db.host},
         Database: ${db.database}
