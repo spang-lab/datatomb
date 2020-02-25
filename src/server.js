@@ -1,7 +1,7 @@
-import Koa from "koa";
-import getBaseRouter from "./api/router.js";
+import Koa from 'koa';
+import getBaseRouter from './api/router.js';
 
-const server = async(port) => {
+const server = async (port) => {
     const app = new Koa();
     const router = await getBaseRouter();
     app.use(router.routes());
