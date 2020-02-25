@@ -1,10 +1,10 @@
-import { server } from "./src/index.js";
+/* eslint-disable no-console */
+import { server } from './src/index.js';
 
-( async () => {
+(async () => {
     try {
         await server();
-    } catch ( err ) {
+    } catch (err) {
         console.error(err);
-    };
-
-} )();
+    }
+})();
