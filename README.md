@@ -79,7 +79,7 @@ return 1 if healthy.
   - table `tags(name primary unique)`
   - table `users(name primary unique)` (TODO: is this even necessary or do we entirely rely on the authserver for this? What happens if users there get deleted?)
   - table `access(id primary, user => users.id, timestamp, dataset => datasets.hash)`
-  - table `datasets(hash primary unique, parents => datasets.hash, tags => [tags.id], description, creator => users.id, timestamp, readGroups, adminGroups, readUsers, adminUsers)`
+  - table `datasets(hash primary unique, name, parents => datasets.hash, tags => [tags.id], description, creator => users.id, timestamp, readGroups, adminGroups, readUsers, adminUsers)`
   the fields `readGroups, adminGroups, readUsers, adminUsers` are created but initialized to `config.usergroup`, `config.admingroup`, <empty> and <empty> for future implementation of a role / permission system.
 
 ## Auth server
