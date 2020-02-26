@@ -3,7 +3,7 @@
 HTTP server for storing data sets.
 
 ## idea
-This server is a databackend and metadataprovider for [glacier](https://gitlab.spang-lab.de/jsimeth/glacier). It accepts data set up- and downloads by authenticated users. 
+This server is a data- and metadataprovider for [glacier](https://gitlab.spang-lab.de/jsimeth/glacier). It accepts dataset up- and downloads by authenticated users. 
 
 ### Immutability
 It is important to realize that data sets are immutable once they have been published. This is necessary to ensure the integrity of downstream analyses. Therefore, there are only two roles: creating datasets and reading datasets. Deletion will be possible but is only intended to remove entire chains of datasets or orphaned datasets. It is not possible to modify datasets (also not their metadata), if such a modified dataset is necessary, it has to be uploaded as a new dataset (and future analysis must be based on this new dataset).
