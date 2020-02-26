@@ -1,9 +1,20 @@
-import Router from "koa-router";
+import Router from 'koa-router';
+import { search } from './search.js';
+import { putMetadata, getMetadata, rmMetadata } from './metadata.js';
+import { putDataset, getDataset, rmDataset, getLog } from './dataset.js';
+import { log } from '../util/index.js';
 
 const getApiRouter = async () => {
     const apirouter = new Router();
-    apirouter.get("/healthy", (ctx) => { ctx.body = "1"; });
-    apirouter.post("/meta/:hash", (ctx) => { console.log(`posting metadata for hash = ${ctx.params.hash}`); ctx.body = `${ctx.params.hash}`; });
+    apirouter.get("/meta/search/:query", (ctx) => { search(ctx); });
+    apirouter.put("/meta/:hash", (ctx) => { putMetadata(ctx); });
+    apirouter.get("/meta/:hash", (ctx) => { getMetadata(ctx); });
+    apirouter.del("/meta/:hash", (ctx) => { rmMetadata(ctx); });
+    apirouter.put("/:hash", (ctx) => { putDataset(ctx); });
+    apirouter.get("/:hash", (ctx) => { getDataset(ctx); });
+    apirouter.del("/:hash", (ctx) => { rmDataset(ctx); });
+    apirouter.get("/log/:hash", (ctx) => { getLog(ctx); });
+    apirouter.get("/healthy", (ctx) => { ctx.body = '1'; });
     return apirouter;
 };
 

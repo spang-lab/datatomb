@@ -47,14 +47,17 @@ Database secrets must be provided in environment variables `POSTGRES_USER` and `
 ## API endpoints
 Below is prefixed with `/api/v1/`.
 
-### `/token/<username>`
+### `GET /token/<username>`
 returns a valid token for `<username>`. Need to have a valid ssh key pair and the public key must be known to the auth server.
 TODO: think about the process and document.
 
-### `/meta/<hash>`
+### `GET /meta/<hash>`
 returns all metadata of `<hash>` as json object.
 
-### `/search/<query>`
+### `PUT /meta/<hash>`
+puts metadata of `<hash>` on datatomb.
+
+### `GET /meta/search/<query>`
 returns a list of hashes. `query` may be any key-value pair combining
   - `any`: free text search in all fields
   - `name`: user-provided (possibly non-unique) name of the dataset.
@@ -65,19 +68,21 @@ returns a list of hashes. `query` may be any key-value pair combining
   - `before`: created before some time point (unix time)
   - `lastAccessBefore`: last access before some time point (unix time). Only available for admins and mainly used to identify deletion candidates
   - `child=<hash>`: returns all parents of `hash`
+  - `hash=<hash>`: returns itself (can be used to check for existance of a hash)
   
 Several conditions are AND-connected.
 
 TODO: anything else??
-### `/accessed/<hash>`
+### `/log/<hash>`
 If you are the owner of the dataset `<hash>` (or admin), you may see the access history to that data set.
-### `/get/<hash>`
+### `GET /<hash>`
 downloads dataset
-### `/publish/<hash>`
+### `PUT /<hash>`
 uploads dataset
-### `/rm`
+### `DELETE /<hash>`
 If you are the owner of a dataset or admin (TODO: maybe don't allow this?!?! maybe only admin may?), you may remove your published data sets.
-### `/healthy`
+
+### `GET /healthy`
 return 1 if healthy.
 
 ## Database schema
@@ -85,7 +90,7 @@ return 1 if healthy.
   - table `users(name primary unique)` (TODO: is this even necessary or do we entirely rely on the authserver for this? What happens if users there get deleted?)
   - table `access(id primary, user => users.id, timestamp, dataset => datasets.hash)`
   - table `datasets(hash primary unique, name, parents => datasets.hash, tags => [tags.id], description, creator => users.id, timestamp, readGroups, adminGroups, readUsers, adminUsers)`
-  the fields `readGroups, adminGroups, readUsers, adminUsers` are created but initialized to `config.usergroup`, `config.admingroup`, <empty> and <empty> for future implementation of a role / permission system.
+  the fields `readGroups, adminGroups, readUsers, adminUsers` are created and initialized to `config.usergroup`, `config.admingroup`, <empty> and <empty> without any possibility for the user to change this. This is for future implementation of a role / permission system.
 
 ## Auth server
 uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.
