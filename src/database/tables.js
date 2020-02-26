@@ -58,24 +58,24 @@ const tables = [
         `),
     },
     {
-        name: 'parentDatasets',
+        name: 'parentdatasets',
         columns: ['child', 'parent'],
         create: (db) => db.none(`
-            CREATE TABLE parentDatasets(
+            CREATE TABLE parentdatasets(
                 child           text                NOT NULL REFERENCES datasets(hash),
                 parent          text                NOT NULL REFERENCES datasets(hash),
-                CONSTRAINT pk_parentDatasets PRIMARY KEY (child, parent)
+                CONSTRAINT pk_parentdatasets PRIMARY KEY (child, parent)
             );
         `),
     },
     {
-        name: 'datasetTags',
+        name: 'datasettags',
         columns: ['dataset', 'tag'],
         create: (db) => db.none(`
-            CREATE TABLE datasetTags (
+            CREATE TABLE datasettags (
                 dataset         text                NOT NULL REFERENCES datasets(hash),
                 tag             text                NOT NULL REFERENCES tags(name),
-                CONSTRAINT pk_datasetTags PRIMARY KEY (dataset, tag)
+                CONSTRAINT pk_datasettags PRIMARY KEY (dataset, tag)
             );
         `),
     },
