@@ -8,6 +8,9 @@ This server is a data- and metadataprovider for [glacier](https://gitlab.spang-l
 ### Immutability
 It is important to realize that data sets are immutable once they have been published. This is necessary to ensure the integrity of downstream analyses. Therefore, there are only two roles: creating datasets and reading datasets. Deletion will be possible but is only intended to remove entire chains of datasets or orphaned datasets. It is not possible to modify datasets (also not their metadata), if such a modified dataset is necessary, it has to be uploaded as a new dataset (and future analysis must be based on this new dataset).
 
+### Dataset handles
+handles to datasets are hashes (see glacier), not human-readable names as these may be used several times. It is still possible to give names to datasets and search for them.
+
 ### Chains of Datasets
 Often, data does not come out of nowhere, it is derived from other data. Therefore, datatomb stores a tree like structure and every dataset usually has one or more "parent" datasets (There may be no parent when the data is freshly created).
 
@@ -25,21 +28,21 @@ Users may register webhooks that are triggered upon upload of datasets with spec
 
 ## Server config
 ### server
-  - `port`
-  - `datasetpath`
+  - `port` the port on which the server is listening for requests.
+  - `datasetpath` the path where datasets are being stored.
 
 ### database
-  - `host`
-  - `database`
+  - `host` hostname of the postgreSQL server.
+  - `database` db name
   - `port`
 
-Database secrets are stored in environment variables `POSTGRES_USER` and `POSTGRES_PASSWORD`
+Database secrets must be provided in environment variables `POSTGRES_USER` and `POSTGRES_PASSWORD`
 
 ### authserver
-  - `host`
+  - `host` hostname of the authserver
   - `port`
-  - `usergroup`
-  - `admingroup`
+  - `usergroup` name of the group that is allowed to access datatomb
+  - `admingroup` name of the group that administers datatomb
 
 ## API endpoints
 Below is prefixed with `/api/v1/`.
@@ -49,10 +52,12 @@ returns a valid token for `<username>`. Need to have a valid ssh key pair and th
 TODO: think about the process and document.
 
 ### `/meta/<hash>`
-If nothing else is given, returns all metadata of `<hash>` as json object.
+returns all metadata of `<hash>` as json object.
+
 ### `/search/<query>`
 returns a list of hashes. `query` may be any key-value pair combining
   - `any`: free text search in all fields
+  - `name`: user-provided (possibly non-unique) name of the dataset.
   - `creator`: datasets authored by some specific user
   - `tag`: dataset has tag attached
   - `description`: free text search in description field
