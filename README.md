@@ -87,10 +87,8 @@ return 1 if healthy.
 
 ## Database schema
   - table `tags(name primary unique)`
-  - table `users(name primary unique)` (TODO: is this even necessary or do we entirely rely on the authserver for this? What happens if users there get deleted?)
-  - table `access(id primary, user => users.id, timestamp, dataset => datasets.hash)`
-  - table `datasets(hash primary unique, name, parents => datasets.hash, tags => [tags.id], description, creator => users.id, timestamp, readGroups, adminGroups, readUsers, adminUsers)`
-  the fields `readGroups, adminGroups, readUsers, adminUsers` are created and initialized to `config.usergroup`, `config.admingroup`, <empty> and <empty> without any possibility for the user to change this. This is for future implementation of a role / permission system.
+  - table `log(id primary, operation, user, timestamp, dataset => datasets.hash)` (operation may be one of create, read, delete)
+  - table `datasets(hash primary unique, name, created => log.id, parents => [datasets.hash], tags => [tags.name], description, data)`
 
 ## Auth server
 uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.
