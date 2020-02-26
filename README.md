@@ -56,7 +56,7 @@ returns all metadata of `<hash>` as json object.
 ### `PUT /meta/<hash>`
 puts metadata of `<hash>` on datatomb.
 
-### `GET /meta/search/<query>`
+### `GET /meta/search?<query>`
 returns a list of hashes. `query` may be any key-value pair combining
   - `any`: free text search in all fields
   - `name`: user-provided (possibly non-unique) name of the dataset.
@@ -73,8 +73,10 @@ returns a list of hashes. `query` may be any key-value pair combining
   
 Several conditions are AND-connected.
 
+Example: `GET /meta/search?name=my_dataset&creator=my_user` will return all datasets named "my_dataset" and were created by "my_user".
+
 TODO: anything else??
-### `/log/<hash>`
+### `GET /log/<hash>`
 If you are the owner of the dataset `<hash>` (or admin), you may see the access history to that data set.
 ### `GET /<hash>`
 downloads dataset
@@ -84,7 +86,7 @@ uploads dataset
 If you are the owner of a dataset or admin (TODO: maybe don't allow this?!?! maybe only admin may?), you may remove your published data sets.
 
 ### `GET /healthy`
-return 1 if healthy.
+return 1 if healthy / ready for connections.
 
 ## Database schema
   - table `tags(name primary unique)`
