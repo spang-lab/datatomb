@@ -44,12 +44,11 @@ Database secrets must be provided in environment variables `POSTGRES_USER` and `
   - `usergroup` name of the group that is allowed to access datatomb
   - `admingroup` name of the group that administers datatomb
 
+## Authentification
+Requests must contain a header with a access token issued by the auth server. Datatomb validates this token and may cache the result for a certain period of time if successful. For this time frame, this token is valid.
+
 ## API endpoints
 Below is prefixed with `/api/v1/`.
-
-### `GET /token/<username>`
-returns a valid token for `<username>`. Need to have a valid ssh key pair and the public key must be known to the auth server.
-TODO: think about the process and document.
 
 ### `GET /meta/<hash>`
 returns all metadata of `<hash>` as json object.
@@ -69,6 +68,8 @@ returns a list of hashes. `query` may be any key-value pair combining
   - `lastAccessBefore`: last access before some time point (unix time). Only available for admins and mainly used to identify deletion candidates
   - `child=<hash>`: returns all parents of `hash`
   - `hash=<hash>`: returns itself (can be used to check for existance of a hash)
+  - `commit`: commit or id that can be used to identify a commit.
+  - `project`: project id
   
 Several conditions are AND-connected.
 
@@ -88,7 +89,8 @@ return 1 if healthy.
 ## Database schema
   - table `tags(name primary unique)`
   - table `log(id primary, operation, user, timestamp, dataset => datasets.hash)` (operation may be one of create, read, delete)
-  - table `datasets(hash primary unique, name, created => log.id, parents => [datasets.hash], tags => [tags.name], description, data)`
+  - table `coderefs(id primary, repository, checkoutobject)` (checkoutobject may be anything that one can `git checkout`, e.g., a commit or a tag,... in principle also a branch but this is discouraged because it is not static.)
+  - table `datasets(hash primary unique, name, projectname, created => log.id, parents => [datasets.hash], tags => [tags.name], description, data, sourcecode => coderefs.id)`
 
 ## Auth server
 uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.
