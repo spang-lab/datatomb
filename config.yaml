@@ -5,3 +5,4 @@ database:
 
 server:
   port: 8080
+  datasetpath: /tmp/datatomb/

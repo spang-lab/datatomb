@@ -3,10 +3,15 @@ import { search } from './search.js';
 import { putMetadata, getMetadata, rmMetadata } from './metadata.js';
 import { putDataset, getDataset, rmDataset, getLog } from './dataset.js';
 import { log } from '../util/index.js';
+import { apiTransaction,
+         apiError,
+       } from '../middleware/index.js';
 
 const getApiRouter = async () => {
     const apirouter = new Router();
-    apirouter.get("/meta/search/:query", (ctx) => { search(ctx); });
+    apirouter.use(apiError);
+    //apirouter.use(apiTransaction);
+    apirouter.get("/meta/search", (ctx) => { search(ctx); });
     apirouter.put("/meta/:hash", (ctx) => { putMetadata(ctx); });
     apirouter.get("/meta/:hash", (ctx) => { getMetadata(ctx); });
     apirouter.del("/meta/:hash", (ctx) => { rmMetadata(ctx); });
