@@ -2,6 +2,7 @@ import { log } from '../util/index.js';
 
 export const putMetadata = (ctx) => {
     log(`receiving metadata for hash = ${ctx.params.hash}`);
+    log(`received: ${ctx.req.data}`);
     ctx.body = `${ctx.params.hash}`;
 };
 export const getMetadata = (ctx) => {
