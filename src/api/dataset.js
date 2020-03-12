@@ -1,6 +1,7 @@
 import { log } from '../util/index.js';
 import { add as addMetadata,
          rm as rmMetadata } from './metadata.js';
+import { getDb, addLog, dsetExistsInDb } from '../database/index.js';
 import fs from 'fs-extra';
 import {get as getDsetstore} from '../context/dsetstore.js';
 import send from 'koa-send';
@@ -70,6 +71,7 @@ export const uploadDataset = async (ctx) => {
     ctx.state.hash = hashrep;
     ctx.state.meta = metadata;
     await addMetadata(ctx);
+    await addLog(ctx, hashrep, 'created');
 
     ctx.body = JSON.stringify(
         {
@@ -77,21 +79,43 @@ export const uploadDataset = async (ctx) => {
             algo: "sha256sum"
         });
 };
-export const getDataset = async (ctx) => {
-    log(`getting dataset for hash = ${ctx.params.hash}`);
+const datasetExists = async (ctx, hash) => {
+    const db = getDb();
+    const metadataExists = dsetExistsInDb(db, hash);
     const dsetstore = await getDsetstore(ctx);
-    // todo: log read
+    const filepath = [dsetstore.path, hash].join('/');
+    const fileExists = fs.exists(filepath);
+    return (await metadataExists) & (await fileExists);
+};
+export const getDataset = async (ctx) => {
+    const hash = ctx.params.hash;
+    if( ! await datasetExists(ctx, hash) ) {
+        throw( new Error(`dataset ${hash} does not exist.`));
+    }
+    log(`getting dataset for hash = ${hash}`);
+    // log read:
+    const p = addLog(ctx, hash, 'read');
+
+    // send the data:
+    const dsetstore = await getDsetstore(ctx);
     await send(ctx,
-               ctx.params.hash,
+               hash,
                {
                    root: dsetstore.path,
                    immutable: true
                }
               );
+    await p;
 };
 export const rmDataset = async (ctx) => {
-    log(`removing dataset for hash = ${ctx.params.hash}`);
     const hash = ctx.params.hash;
+    log(`removing dataset for hash = ${ctx.params.hash}`);
+    if( ! await datasetExists(ctx, hash) ) {
+        throw( new Error(`dataset ${hash} does not exist.`));
+    }
+    // log deletion:
+    const p = addLog(ctx, hash, 'deleted');
+
     const dsetstore = await getDsetstore(ctx);
     if( ! dsetstore.writable ) {
         throw(new Error('dataset store is not writable.'));
@@ -107,8 +131,11 @@ export const rmDataset = async (ctx) => {
     ctx.state.hash = hash;
     await rmMetadata(ctx);
     ctx.body = `${hash}`;
+    await p;
 };
 export const getLog = async (ctx) => {
     log(`getting log for hash = ${ctx.params.hash}`);
-    ctx.body = `log for ${ctx.params.hash}`;
+    const hash = ctx.params.hash;
+    const log = await getLog(ctx, hash);
+    ctx.body = log;
 }

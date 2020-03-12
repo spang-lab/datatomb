@@ -5,6 +5,7 @@ import { uploadDataset, getDataset, rmDataset, getLog } from './dataset.js';
 import { log } from '../util/index.js';
 import { apiTransaction,
          apiError,
+         apiAuth
        } from '../middleware/index.js';
 import {get as getDsetstore} from '../context/dsetstore.js';
 
@@ -12,6 +13,7 @@ const getApiRouter = async () => {
     const apirouter = new Router();
     apirouter.use(apiError);
     apirouter.use(apiTransaction);
+    apirouter.use(apiAuth);
     apirouter.get("/meta/search", (ctx) => { search(ctx); });
     apirouter.get("/meta/:hash", (ctx) => { getMetadata(ctx); });
     apirouter.post("/upload", (ctx) => { uploadDataset(ctx); });

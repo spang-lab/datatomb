@@ -12,49 +12,52 @@ const types = [
 const tables = [
     {
         name: 'tags',
-        columns: ['name'],
+        columns: ['id', 'name'],
         create: (db) => db.none(`
             CREATE TABLE tags (
-                name            text                PRIMARY KEY NOT NULL
+                id              SERIAL              PRIMARY KEY NOT NULL,
+                name            text                UNIQUE NOT NULL
             );
         `),
     },
     {
         name: 'datagenerators',
-        columns: ['id', 'repository', 'checkoutobject'],
+        columns: ['id', 'kind', 'instance', 'ref'],
         create: (db) => db.none(`
             CREATE TABLE datagenerators(
                 id              SERIAL              PRIMARY KEY NOT NULL,
                 kind            text                NOT NULL,
                 instance        text                NOT NULL,
-                ref             text
+                ref             text,
+                CONSTRAINT unique_datagenerators UNIQUE(kind, instance, ref)
             );
         `),
     },
     {
         name: 'datasets',
-        columns: ['hash', 'name', 'projectname', 'description', 'data', 'sourcecode'],
+        columns: ['id', 'hash', 'name', 'projectname', 'description', 'data', 'generator'],
         create: (db) => db.none(`
             CREATE TABLE datasets(
-                hash            text                NOT NULL PRIMARY KEY,
+                id              SERIAL              NOT NULL PRIMARY KEY,
+                hash            text                NOT NULL,
                 name            text                NOT NULL,
                 projectname     text,
                 description     text,
                 data            JSON,
-                sourcecode      SERIAL              NOT NULL REFERENCES datagenerators(id)
+                generator       SERIAL              NOT NULL REFERENCES datagenerators(id)
             );
         `),
     },
     {
         name: 'log',
-        columns: ['id', 'operation', 'user', 'timestamp', 'dataset' ],
+        columns: ['id', 'operation', 'who', 'time', 'dataset' ],
         create: (db) => db.none(`
             CREATE TABLE log(
                 id              SERIAL              PRIMARY KEY NOT NULL,
                 operation       dsetoperation       NOT NULL,
                 who             text                NOT NULL,
                 time            timestamp with time zone NOT NULL,
-                dataset         text                NOT NULL REFERENCES datasets(hash)
+                dataset         INT                 NOT NULL REFERENCES datasets(id)
             );
         `),
     },
@@ -63,8 +66,8 @@ const tables = [
         columns: ['child', 'parent'],
         create: (db) => db.none(`
             CREATE TABLE parentdatasets(
-                child           text                NOT NULL REFERENCES datasets(hash),
-                parent          text                NOT NULL REFERENCES datasets(hash),
+                child           INT                 NOT NULL REFERENCES datasets(id),
+                parent          INT                 NOT NULL REFERENCES datasets(id),
                 CONSTRAINT pk_parentdatasets PRIMARY KEY (child, parent)
             );
         `),
@@ -74,8 +77,8 @@ const tables = [
         columns: ['dataset', 'tag'],
         create: (db) => db.none(`
             CREATE TABLE datasettags (
-                dataset         text                NOT NULL REFERENCES datasets(hash),
-                tag             text                NOT NULL REFERENCES tags(name),
+                dataset         INT                 NOT NULL REFERENCES datasets(id),
+                tag             INT                 NOT NULL REFERENCES tags(id),
                 CONSTRAINT pk_datasettags PRIMARY KEY (dataset, tag)
             );
         `),
