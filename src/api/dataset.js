@@ -1,5 +1,6 @@
 import { log } from '../util/index.js';
-import { add as addMetadata } from './metadata.js';
+import { add as addMetadata,
+         rm as rmMetadata } from './metadata.js';
 import fs from 'fs-extra';
 import {get as getDsetstore} from '../context/dsetstore.js';
 import send from 'koa-send';
@@ -78,7 +79,7 @@ export const uploadDataset = async (ctx) => {
 };
 export const getDataset = async (ctx) => {
     log(`getting dataset for hash = ${ctx.params.hash}`);
-    const dsetstore = getDsetstore(ctx);
+    const dsetstore = await getDsetstore(ctx);
     try {
         await send(ctx,
                    ctx.params.hash,
@@ -91,11 +92,26 @@ export const getDataset = async (ctx) => {
         log(err);
     }
 };
-export const rmDataset = (ctx) => {
+export const rmDataset = async (ctx) => {
     log(`removing dataset for hash = ${ctx.params.hash}`);
-    ctx.body = `${ctx.params.hash}`;
+    const hash = ctx.params.hash;
+    const dsetstore = await getDsetstore(ctx);
+    if( ! dsetstore.writable ) {
+        throw(new Error('dataset store is not writable.'));
+    }
+    const filename = [dsetstore.path, hash].join('/');
+    console.log(filename);
+    if( ! await fs.exists(filename) ){
+        throw(new Error(`dataset ${hash} does not exist.`));
+    }
+
+    await fs.remove(filename);
+
+    ctx.state.hash = hash;
+    await rmMetadata(ctx);
+    ctx.body = `${hash}`;
 };
-export const getLog = (ctx) => {
+export const getLog = async (ctx) => {
     log(`getting log for hash = ${ctx.params.hash}`);
     ctx.body = `log for ${ctx.params.hash}`;
 }
