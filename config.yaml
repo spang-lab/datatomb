@@ -6,3 +6,8 @@ database:
 server:
   port: 8080
   datasetpath: /tmp/datatomb
+
+authserver:
+  url: https://auth.spang-lab.de/api/v1/token/check
+  usergroup: datatomb
+  admingroup: datatombadmin

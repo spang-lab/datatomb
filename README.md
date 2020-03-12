@@ -39,8 +39,7 @@ Users may register webhooks that are triggered upon upload of datasets with spec
 Database secrets must be provided in environment variables `POSTGRES_USER` and `POSTGRES_PASSWORD`
 
 ### authserver
-  - `host` hostname of the authserver
-  - `port`
+  - `url` full url of token endpoint of the authserver.
   - `usergroup` name of the group that is allowed to access datatomb
   - `admingroup` name of the group that administers datatomb
 

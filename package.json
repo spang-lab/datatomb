@@ -13,6 +13,7 @@
     "koa-multer": "^1.0.2",
     "koa-router": "^8.0.8",
     "koa-send": "^5.0.0",
+    "node-fetch": "^2.6.0",
     "nodemon": "^2.0.2",
     "pg-promise": "^10.4.4"
   },
