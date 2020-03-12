@@ -1,7 +1,8 @@
 import { log } from '../util/index.js';
 import { add as addMetadata,
          rm as rmMetadata } from './metadata.js';
-import { getDb, addLog, dsetExistsInDb } from '../database/index.js';
+import { getDb, addLog, dsetExistsInDb,
+       getLog as getLogFromDb } from '../database/index.js';
 import fs from 'fs-extra';
 import {get as getDsetstore} from '../context/dsetstore.js';
 import send from 'koa-send';
@@ -136,6 +137,8 @@ export const rmDataset = async (ctx) => {
 export const getLog = async (ctx) => {
     log(`getting log for hash = ${ctx.params.hash}`);
     const hash = ctx.params.hash;
-    const log = await getLog(ctx, hash);
-    ctx.body = log;
+    const db = getDb();
+    const logdata = await getLogFromDb(db, hash);
+    console.log(logdata);
+    ctx.body = JSON.stringify(logdata);
 }
