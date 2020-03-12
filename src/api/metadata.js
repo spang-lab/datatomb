@@ -1,4 +1,4 @@
-import { log } from '../util/index.js';
+import { datasetExists, log } from '../util/index.js';
 import { getDb, getMetadata, addDatasetToDb } from '../database/index.js';
 
 export const add = async ( ctx ) => {
@@ -10,11 +10,10 @@ export const add = async ( ctx ) => {
 export const get = async (ctx) => {
     const hash = ctx.params.hash;
     log(`getting metadata for hash = ${hash}`);
+    if( ! await datasetExists(ctx, hash) ) {
+        throw(new Error(`dataset does not exist or has been deleted.`));
+    }
     const db = getDb();
     const metadata = await getMetadata(db, hash);
     ctx.body = JSON.stringify(metadata);
-};
-export const rm = async (ctx) => {
-    log(`removing metadata for hash = ${ctx.params.hash}`);
-    ctx.body = `${ctx.params.hash}`;
 };

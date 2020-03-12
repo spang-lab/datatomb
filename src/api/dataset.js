@@ -1,6 +1,5 @@
-import { log } from '../util/index.js';
-import { add as addMetadata,
-         rm as rmMetadata } from './metadata.js';
+import { datasetExists, log } from '../util/index.js';
+import { add as addMetadata } from './metadata.js';
 import { getDb, addLog, dsetExistsInDb,
        getLog as getLogFromDb } from '../database/index.js';
 import fs from 'fs-extra';
@@ -80,14 +79,7 @@ export const uploadDataset = async (ctx) => {
             algo: "sha256sum"
         });
 };
-const datasetExists = async (ctx, hash) => {
-    const db = getDb();
-    const metadataExists = dsetExistsInDb(db, hash);
-    const dsetstore = await getDsetstore(ctx);
-    const filepath = [dsetstore.path, hash].join('/');
-    const fileExists = fs.exists(filepath);
-    return (await metadataExists) & (await fileExists);
-};
+
 export const getDataset = async (ctx) => {
     const hash = ctx.params.hash;
     if( ! await datasetExists(ctx, hash) ) {
@@ -129,8 +121,6 @@ export const rmDataset = async (ctx) => {
 
     await fs.remove(filename);
 
-    ctx.state.hash = hash;
-    await rmMetadata(ctx);
     ctx.body = `${hash}`;
     await p;
 };
