@@ -80,17 +80,14 @@ export const uploadDataset = async (ctx) => {
 export const getDataset = async (ctx) => {
     log(`getting dataset for hash = ${ctx.params.hash}`);
     const dsetstore = await getDsetstore(ctx);
-    try {
-        await send(ctx,
-                   ctx.params.hash,
-                   {
-                       root: dsetstore.path,
-                       immutable: true
-                   }
-                  );
-    } catch(err) {
-        log(err);
-    }
+    // todo: log read
+    await send(ctx,
+               ctx.params.hash,
+               {
+                   root: dsetstore.path,
+                   immutable: true
+               }
+              );
 };
 export const rmDataset = async (ctx) => {
     log(`removing dataset for hash = ${ctx.params.hash}`);
