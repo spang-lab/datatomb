@@ -20,13 +20,14 @@ const tables = [
         `),
     },
     {
-        name: 'coderefs',
+        name: 'datagenerators',
         columns: ['id', 'repository', 'checkoutobject'],
         create: (db) => db.none(`
-            CREATE TABLE coderefs(
+            CREATE TABLE datagenerators(
                 id              SERIAL              PRIMARY KEY NOT NULL,
-                repository      text                NOT NULL,
-                checkoutobject  text                NOT NULL
+                kind            text                NOT NULL,
+                instance        text                NOT NULL,
+                ref             text
             );
         `),
     },
@@ -36,11 +37,11 @@ const tables = [
         create: (db) => db.none(`
             CREATE TABLE datasets(
                 hash            text                NOT NULL PRIMARY KEY,
-                name            text,
+                name            text                NOT NULL,
                 projectname     text,
                 description     text,
                 data            JSON,
-                sourcecode      SERIAL              REFERENCES coderefs(id)
+                sourcecode      SERIAL              NOT NULL REFERENCES datagenerators(id)
             );
         `),
     },
