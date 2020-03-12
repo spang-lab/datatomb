@@ -11,16 +11,16 @@ import {get as getDsetstore} from '../context/dsetstore.js';
 
 const getApiRouter = async () => {
     const apirouter = new Router();
-    apirouter.use(apiError);
-    apirouter.use(apiTransaction);
+    // apirouter.use(apiError);
+    // apirouter.use(apiTransaction);
     apirouter.use(apiAuth);
-    apirouter.get("/meta/search", (ctx) => { search(ctx); });
-    apirouter.get("/meta/:hash", (ctx) => { getMetadata(ctx); });
-    apirouter.post("/upload", (ctx) => { uploadDataset(ctx); });
-    apirouter.get("/:hash", (ctx) => { getDataset(ctx); });
-    apirouter.del("/:hash", (ctx) => { rmDataset(ctx); });
-    apirouter.get("/log/:hash", (ctx) => { getLog(ctx); });
-    apirouter.get("/healthy", (ctx) => { ctx.body = '1'; });
+    apirouter.get("/meta/search", async (ctx) => { await search(ctx); });
+    apirouter.get("/meta/:hash", async (ctx) => { await getMetadata(ctx); });
+    apirouter.get("/healthy", (ctx) => { ctx.body = JSON.stringify({ok: true}); });
+    apirouter.post("/upload", async (ctx) => { await uploadDataset(ctx);});
+    apirouter.get("/log/:hash", async (ctx) => { await getLog(ctx); });
+    apirouter.get("/:hash", async (ctx) => { await getDataset(ctx); });
+    apirouter.del("/:hash", async (ctx) => { await rmDataset(ctx); });
     return apirouter;
 };
 
