@@ -91,10 +91,11 @@ return 1 if healthy / ready for connections.
 ## Database schema
   - table `tags(name primary unique)`
   - table `log(id primary, operation, who, time, dataset => datasets.hash)` (operation may be one of created, read, delete)
-  - table `coderefs(id primary, repository, checkoutobject)` (checkoutobject may be anything that one can `git checkout`, e.g., a commit or a tag,... in principle also a branch but this is discouraged because it is not static.)
+  - table `datagenerators(id primary, kind, instance, ref)`
+    this may be used to say what and how to generate this piece of data. Typically, `kind='git'`, then. instance is the repository and ref the commit or tag to be checked out. Other use cases may include pipeline services or web front ends that generate data. In any case, `instance` shall refer to the particular address / instance of the service from which the generating entity can be received, and `ref` is the id / key under which this entity in receivable from the instance. `kind` may be kept relatively unstandardized, except for `git` which should be used as above.
   - table `parentDatasets(child => datasets.hash, parent => datasets.hash)`
   - table `datasetTags(dataset => datasets.hash, tag => tags.name)`
-  - table `datasets(hash primary unique, name, projectname, description, data, sourcecode => coderefs.id)`
+  - table `datasets(hash primary unique, name, projectname, description, data, source => datagenerators.id)`
 
 ## Auth server
 uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.
