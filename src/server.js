@@ -13,7 +13,8 @@ const server = async () => {
     console.log(`port: ${port}`);
 
     await createDsetstore(datasetpath);
-    app.context.dsetstore = getDsetstore();
+    app.context.dsetstore = await getDsetstore();
+    console.log(app.context.dsetstore);
     await createDb();
 
     app.use(router.routes());

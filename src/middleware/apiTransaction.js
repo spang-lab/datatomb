@@ -8,6 +8,10 @@ export default async (ctx, next) => {
         ctx.state.db = transaction;
         log("set context state db.");
         await next();
+    }).then(()=>{
+        log("committing db transaction");
+    }).catch((err) => {
+        log("rolling back db transaction");
+        throw(err);
     });
-    log("committing db transaction");
 };

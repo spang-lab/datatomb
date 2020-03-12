@@ -1,39 +1,75 @@
 import { log } from '../util/index.js';
-import fs from 'fs';
+import { add as addMetadata } from './metadata.js';
+import fs from 'fs-extra';
 import {get as getDsetstore} from '../context/dsetstore.js';
-import multer from 'koa-multer';
 import send from 'koa-send';
-import BinaryFile from 'binary-file';
 import sha256 from 'js-sha256';
+import Busboy from 'busboy';
 
 export const uploadDataset = async (ctx) => {
-    // at this point, the file has already been uploaded and stored to
-    const filepath = ctx.req.file.path;
-    // now, we compute its hash:
-    let hash = sha256.create();
+    console.log('upload dataset.');
 
-    const f = new BinaryFile(filepath, 'r', true);
-    await f.open();
-    const buffersize = 100;
-    const fsize = await f.size();
-    log(`size: ${fsize}`);
-    for ( var i = 0; i < fsize/buffersize; i++) {
-        //log(i);
-        const b = await f.read(buffersize);
-        log(b);
-        hash.update(b);
+    var busboy = new Busboy({ headers: ctx.req.headers });
+    const dsetstore = await getDsetstore(ctx);
+    // todo: better ways for a tmpfilename?
+    if( ! dsetstore.writable ) {
+        throw new Error('dataset store is not writable.');
     }
-    const hashrep = hash.hex();
-    log(hashrep);
+    const tmpfilename = [dsetstore.path, (Math.random()*0xFFFFFFFFFFFFFF).toString(20)].join('/');
+    log(`storing to tmpfile: ${tmpfilename}`);
 
+    const [hashrep, metadata] = await new Promise( (resolve, reject) => {
+        let hash = sha256.create();
+        let havefile = false;
+        let meta = null;
+        busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+            if( fieldname != 'file' ) {
+                reject(new Error('only fieldnames with called "file" may contain file upload data.'));
+            }
 
-    console.log("upload done?");
-    // file properties:
-    console.log(ctx.req.file);
+            havefile = true;
+            console.log('file ['+fieldname+']: filename: ' + filename);
+            // write data to disk
+            file.pipe(fs.createWriteStream(tmpfilename));
 
-    // parse and store metadata:
-    const data = JSON.parse(ctx.req.body.data);
-    ctx.body = 'done';
+            file.on('data', function(data) {
+                console.log('File ['+fieldname+'] got ' + data.length + ' bytes');
+                hash.update(data);
+            });
+            file.on('end', function() {
+                const hashrep = hash.hex();
+                console.log(`File finished: ${hashrep}`);
+            });
+        });
+        busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+            if( fieldname != 'data' ){
+                reject(new Error('apart from the "file", only one other fieldname, "data" is allowed.'));
+            }
+            meta = JSON.parse(val);
+        });
+        busboy.on('finish', () => {
+            if( ! havefile | ! meta ) {
+                reject(new Error('incomplete upload (either file or metadata is missing)'));
+            }
+            resolve([hash.hex(), meta]);
+        });
+        ctx.req.pipe(busboy);
+    });
+
+    const finalfilename = [dsetstore.path, hashrep].join('/');
+    if( await fs.exists(finalfilename) ) {
+        await fs.remove(tmpfilename);
+        throw(new Error('file already exists. cannot upload twice.'));
+    }
+
+    // move tmpfile to its final destination (hash):
+    await fs.rename(tmpfilename, finalfilename, (err) => { if( err ) { throw err; } });
+
+    // add metadata for this file:
+    await addMetadata(hashrep, metadata);
+    console.log(metadata);
+
+    ctx.body = hashrep;
 };
 export const getDataset = async (ctx) => {
     log(`getting dataset for hash = ${ctx.params.hash}`);
