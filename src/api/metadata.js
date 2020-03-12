@@ -1,14 +1,14 @@
 import { log } from '../util/index.js';
 
-export const add = async (hash, metadata) => {
-    log(`receiving metadata for hash = ${hash}`);
-    log(`received: ${metadata}`);
+export const add = async ( ctx ) => {
+    log(`receiving metadata for hash = ${ctx.state.hash}`);
+    log(`received: ${ctx.state.meta}`);
 };
-export const get = (ctx) => {
+export const get = async (ctx) => {
     log(`getting metadata for hash = ${ctx.params.hash}`);
     ctx.body = `${ctx.params.hash}`;
 };
-export const rm = (ctx) => {
+export const rm = async (ctx) => {
     log(`removing metadata for hash = ${ctx.params.hash}`);
     ctx.body = `${ctx.params.hash}`;
 };

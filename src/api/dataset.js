@@ -66,10 +66,15 @@ export const uploadDataset = async (ctx) => {
     await fs.rename(tmpfilename, finalfilename, (err) => { if( err ) { throw err; } });
 
     // add metadata for this file:
-    await addMetadata(hashrep, metadata);
-    console.log(metadata);
+    ctx.state.hash = hashrep;
+    ctx.state.meta = metadata;
+    await addMetadata(ctx);
 
-    ctx.body = hashrep;
+    ctx.body = JSON.stringify(
+        {
+            hash: hashrep,
+            algo: "sha256sum"
+        });
 };
 export const getDataset = async (ctx) => {
     log(`getting dataset for hash = ${ctx.params.hash}`);
