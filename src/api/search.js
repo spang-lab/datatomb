@@ -20,8 +20,10 @@ const queryDescription = async function(db, val) {
 }
 
 const queryAny = async function(db, val) {
-    const v = pgp.as.text('%'+val+'%');
-    throw(new Error('"any" search unimplemented.'));
+    // we may also use 'multi' which would be more efficient. but this leads to code doubling...?
+    const allresults = await Promise.all([ queryName(db, val), queryAuthor(db, val), queryTag(db, val), queryDescription(db, val) ]);
+    const uniqueresults = [...new Set(Array.prototype.concat(...allresults))];
+    return uniqueresults;
 }
 
 const query = function(db, kind, searchstr) {
