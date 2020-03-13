@@ -1,5 +1,5 @@
 import { log } from '../util/index.js';
-import { getDb } from '../database/index.js';
+import { getDb, mayRead } from '../database/index.js';
 import pgPromise from 'pg-promise';
 const pgp = pgPromise({capSQL: true});
 
@@ -75,5 +75,6 @@ export const search = async (ctx) => {
     const db = getDb();
     // const result = await queryTag(db, ctx.request.query['tag']);
     const result = await processQueries(db, ctx.request.query);
-    ctx.body = JSON.stringify(result);
+    // filter out dsets that are not meant for this user:
+    ctx.body = JSON.stringify(result.filter(hash => mayRead(db, ctx.status.authdata, hash)));
 };

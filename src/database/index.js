@@ -4,6 +4,7 @@ export { exists as dsetExistsInDb,
          get as getMetadata,
          getCreator,
          getShareState,
+         mayRead,
          add as addDatasetToDb } from './datasets.js';
 
 let db = null;

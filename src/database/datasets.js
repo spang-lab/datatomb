@@ -13,6 +13,36 @@ export const getCreator = async function(db, hash) {
     return db.one('SELECT who FROM log WHERE dataset = (SELECT MAX(id) FROM datasets WHERE hash = $1) AND operation = $2', [hash, 'created'], u => u.who );
 }
 
+export const mayRead = async function(db, authdata, hash) {
+    if( authdata.isAdmin ) {
+        log(`admin access for ${authdata.user}`);
+        return true;
+    } else {
+        const share = await getShareState(db, hash);
+        log(`access to ${hash} is ${share}.`);
+
+        if( share === 'public' ) {
+            return true;
+        } else if( share === 'internal' ) {
+            if( authdata.isUser ) {
+                return true;
+            } else {
+                throw(new Error('user is not a datatomb user.'));
+            }
+        } else if( share === 'private' ) {
+            const owner = await getCreator(db, hash);
+            if( owner === authdata.user ) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            throw(new Error(`unknown sharestate.`));
+        }
+    }
+    return false;
+}
+
 export const getShareState = async function(db, hash) {
     if( ! await exists(db, hash) ){
         throw(new Error(`no dataset for hash ${hash}`));
