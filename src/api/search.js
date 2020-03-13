@@ -25,6 +25,14 @@ const queryAny = async function(db, val) {
     const uniqueresults = [...new Set(Array.prototype.concat(...allresults))];
     return uniqueresults;
 }
+const queryAfter = async function(db, val) {
+    const date = new Date(val);
+    return db.map('SELECT hash FROM datasets WHERE id in (SELECT dataset FROM log WHERE operation = $1 AND time > $2)', ['created', date], r => r.hash);
+}
+const queryBefore = async function(db, val) {
+    const date = new Date(val);
+    return db.map('SELECT hash FROM datasets WHERE id in (SELECT dataset FROM log WHERE operation = $1 AND time < $2)', ['created', date], r => r.hash);
+}
 
 const query = function(db, kind, searchstr) {
     log(`query: kind=${kind}`);
@@ -43,6 +51,12 @@ const query = function(db, kind, searchstr) {
         break;
     case 'description':
         return queryDescription(db, searchstr);
+        break;
+    case 'after':
+        return queryAfter(db, searchstr);
+        break;
+    case 'before':
+        return queryBefore(db, searchstr);
         break;
     default:
         throw(new Error(`unknown search query "${key}"`));
