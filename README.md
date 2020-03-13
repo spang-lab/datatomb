@@ -44,7 +44,9 @@ Database secrets must be provided in environment variables `POSTGRES_USER` and `
   - `admingroup` name of the group that administers datatomb
 
 ## Authentification
-Requests must contain a header with a access token issued by the auth server. Datatomb validates this token and may cache the result for a certain period of time if successful. For this time frame, this token is valid.
+Requests must contain a header with an access token issued by the auth server. datatomb validates this token and, in later versions, may cache the result for a certain period of time if successful. For this time frame, this token is valid.
+
+For authentication, the header `Authorization: <token>` must be present. Note that some datasets may be public and no authentication is necessary to access these.
 
 ## API endpoints
 Below is prefixed with `/api/v1/`.
