@@ -76,5 +76,5 @@ export const search = async (ctx) => {
     // const result = await queryTag(db, ctx.request.query['tag']);
     const result = await processQueries(db, ctx.request.query);
     // filter out dsets that are not meant for this user:
-    ctx.body = JSON.stringify(result.filter(hash => mayRead(db, ctx.status.authdata, hash)));
+    ctx.body = JSON.stringify(result.filter(hash => mayRead(db, ctx.state.authdata, hash)));
 };
