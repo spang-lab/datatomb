@@ -1,44 +1,79 @@
 import { log } from '../util/index.js';
+import { getDb } from '../database/index.js';
 import pgPromise from 'pg-promise';
 const pgp = pgPromise({capSQL: true});
 
-const queryCommands = (key, val) => {
-    const v = pgp.as.text(val);
-    switch(key.toLowerCase()) {
+const queryName = async function(db, val) {
+    // would lik e to: const v = pgp.as.text(val);
+    return db.map('SELECT hash FROM datasets WHERE name LIKE $1', val, r => r.hash);
+}
+const queryAuthor = async function(db, val) {
+    return db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset from log WHERE who LIKE $1 AND operation = $2)', [val, 'created'], r => r.hash);
+}
+const queryTag = async function(db, val) {
+    log('query tag');
+    return db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset FROM datasettags WHERE tag IN (SELECT id FROM tags WHERE name LIKE $1))', val, r => r.hash);
+}
+const queryDescription = async function(db, val) {
+    log('query descr');
+    return db.map('SELECT hash FROM datasets WHERE description LIKE $1', '%'+val+'%', r => r.hash);
+}
+
+const queryAny = async function(db, val) {
+    const v = pgp.as.text('%'+val+'%');
+    throw(new Error('"any" search unimplemented.'));
+}
+
+const query = function(db, kind, searchstr) {
+    log(`query: kind=${kind}`);
+    switch(kind.toLowerCase()) {
     case 'any':
-        return `((description like ${v}) OR (tags like ${v}) OR (data like ${v}))`;
+        return queryAny(db, searchstr);
         break;
     case 'name':
-        return `name like ${v}`;
+        return queryName(db, searchstr);
         break;
-    case 'creator':
-        return `creator = ${v}`;
+    case 'author':
+        return queryAuthor(db, searchstr);
         break;
     case 'tag':
-        return `tag = ${v}`;
+        return queryTag(db, searchstr);
         break;
     case 'description':
-        return `description like ${v}`;
+        return queryDescription(db, searchstr);
         break;
     default:
-        throw(`unknown search query "${key}"`);
+        throw(new Error(`unknown search query "${key}"`));
     };
 };
-const queryToSqlQuery = (query) => {
-    var res = 'select hash from datasets where ';
 
-    res += Object.keys(query).map((key) => {
-        const v = query[key.toLowerCase()];
-        if( Array.isArray(v) )
-            return v.map( (value) => { return queryCommands(key, value); }).join(' AND ');
-        else
-            return queryCommands(key, v);
-    }).join(' AND ');
-    res += ";";
-    return res;
+const pairwiseIntersection = function(setA, setB) {
+    return new Set([...setA].filter(x => setB.has(x)));
+}
+const intersection = function(arrOfSets) {
+    if( arrOfSets.length === 1 ) {
+        return arrOfSets[0];
+    } else if( arrOfSets.length === 0 ) {
+        return new Set();
+    }
+    const last = arrOfSets.pop();
+    const secondToLast = arrOfSets.pop();
+    return intersection(arrOfSets.concat(pairwiseIntersection(secondToLast, last)));
+}
+const processQueries = async (db, queries) => {
+    const allqueries = Object.keys(queries).map((key) => {
+        return query(db, key, queries[key]);
+    });
+    const allresults = await Promise.all(allqueries);
+
+    const setOfResults = intersection(allresults.map(arr => new Set(arr)));
+
+    // turn into array:
+    return [...setOfResults];
 };
-export const search = (ctx) => {
-    log(queryToSqlQuery(ctx.request.query));
-    // getDb(ctx).
-    ctx.body = '1';
+export const search = async (ctx) => {
+    const db = getDb();
+    // const result = await queryTag(db, ctx.request.query['tag']);
+    const result = await processQueries(db, ctx.request.query);
+    ctx.body = JSON.stringify(result);
 };

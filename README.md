@@ -59,7 +59,7 @@ puts metadata of `<hash>` on datatomb.
 returns a list of hashes. `query` may be any key-value pair combining
   - `any`: free text search in all fields
   - `name`: user-provided (possibly non-unique) name of the dataset.
-  - `creator`: datasets authored by some specific user
+  - `author`: datasets authored by some specific user
   - `tag`: dataset has tag attached
   - `description`: free text search in description field
   - `after`: created after some time point (unix time)
@@ -72,7 +72,7 @@ returns a list of hashes. `query` may be any key-value pair combining
   
 Several conditions are AND-connected.
 
-Example: `GET /meta/search?name=my_dataset&creator=my_user` will return all datasets named "my_dataset" and were created by "my_user".
+Example: `GET /meta/search?name=my_dataset&author=my_user` will return all datasets named "my_dataset" and were created by "my_user".
 
 TODO: anything else??
 ### `GET /log/<hash>`
