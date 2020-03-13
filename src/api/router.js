@@ -5,22 +5,25 @@ import { uploadDataset, getDataset, rmDataset, getLog } from './dataset.js';
 import { log } from '../util/index.js';
 import { apiTransaction,
          apiError,
-         apiAuth
+         apiAuth,
+         isUser,
+         isOwnerOrAdmin,
+         mayRead
        } from '../middleware/index.js';
 import {get as getDsetstore} from '../context/dsetstore.js';
 
 const getApiRouter = async () => {
     const apirouter = new Router();
-    // apirouter.use(apiError);
-    // apirouter.use(apiTransaction);
+    apirouter.use(apiError);
+    apirouter.use(apiTransaction);
     apirouter.use(apiAuth);
-    apirouter.get("/meta/search", async (ctx) => { await search(ctx); });
-    apirouter.get("/meta/:hash", async (ctx) => { await getMetadata(ctx); });
+    apirouter.get("/meta/search", isUser, async (ctx) => { await search(ctx); });
+    apirouter.get("/meta/:hash", mayRead, async (ctx) => { await getMetadata(ctx); });
     apirouter.get("/healthy", (ctx) => { ctx.body = JSON.stringify({ok: true}); });
-    apirouter.post("/upload", async (ctx) => { await uploadDataset(ctx);});
-    apirouter.get("/log/:hash", async (ctx) => { await getLog(ctx); });
-    apirouter.get("/:hash", async (ctx) => { await getDataset(ctx); });
-    apirouter.del("/:hash", async (ctx) => { await rmDataset(ctx); });
+    apirouter.post("/upload", isUser, async (ctx) => { await uploadDataset(ctx);});
+    apirouter.get("/log/:hash", isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
+    apirouter.get("/:hash", mayRead, async (ctx) => { await getDataset(ctx); });
+    apirouter.del("/:hash", isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
     return apirouter;
 };
 

@@ -1,14 +1,17 @@
 #/usr/bin/env bash
 source ./creds.src
 
+echo token=$token
 parent=$(curl \
     -H 'content-type: multipart/form-data' \
+    -H "Authorization: $token" \
     -F file=@testfile \
     -F data='{
         "tags": ["testtag1", "testtag2"],
         "name": "testfile",
         "projectname": "testproject",
         "description": "this is a long description for such a short file.",
+        "share": "internal",
         "data": {
             "someadditional": "data",
             "count": 1
@@ -35,6 +38,7 @@ echo "derived dataset" >> derivedtestfile
 
 child=$(curl \
     -H 'content-type: multipart/form-data' \
+    -H "Authorization: $token" \
     -F file=@derivedtestfile \
     -F data='{
         "tags": ["testtag1", "testtag2", "derived"],
@@ -42,6 +46,7 @@ child=$(curl \
         "projectname": "testproject",
         "parent": "'$sha'",
         "description": "this is another long description for such a short file.",
+        "share": "public",
         "data": {
             "someadditional": "data",
             "count": 2

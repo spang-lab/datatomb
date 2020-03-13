@@ -6,6 +6,20 @@ export const exists = async function(db, hash) {
     return (result.count > 0); // there may be more than 1 dataset with that hash (historical data)
 }
 
+export const getCreator = async function(db, hash) {
+    if( ! await exists(db, hash) ){
+        throw(new Error(`no dataset for hash ${hash}`));
+    }
+    return db.one('SELECT who FROM log WHERE dataset = (SELECT MAX(id) FROM datasets WHERE hash = $1) AND operation = $2', [hash, 'created'], u => u.who );
+}
+
+export const getShareState = async function(db, hash) {
+    if( ! await exists(db, hash) ){
+        throw(new Error(`no dataset for hash ${hash}`));
+    }
+    return db.one('SELECT share FROM datasets WHERE id = (SELECT MAX(id) FROM datasets WHERE hash = $1)', hash, s => s.share);
+}
+
 const getInsertTagId = function(db, tag) {
     return db.task('getInsertTagId', t => {
         return t.oneOrNone('SELECT id FROM tags WHERE name = $1', tag, t => t && t.id)
@@ -31,14 +45,15 @@ const getInsertDataGeneratorId = function(db, datagen) {
 }
 
 const getInsertDatasetId = function(db, hash, metadata, dgenid) {
-    return db.one('INSERT INTO datasets(hash, name, projectname, description, data, generator) VALUES($/hash/, $/name/, $/projectname/, $/description/, $/data/, $/dgenid/) RETURNING id;',
+    return db.one('INSERT INTO datasets(hash, name, projectname, description, data, generator, share) VALUES($/hash/, $/name/, $/projectname/, $/description/, $/data/, $/dgenid/, $/share/) RETURNING id;',
                      {
                          hash: hash,
                          name: metadata.name,
                          projectname: metadata.projectname,
                          description: metadata.description,
                          data: metadata.data,
-                         dgenid: dgenid
+                         dgenid: dgenid,
+                         share: metadata.share
                      }, t => t.id);
 }
 
@@ -87,12 +102,13 @@ export const get = async function(db, hash) {
         parent: await getParent(db, hash),
         children: await getChildren(db, hash)
     };
-    await db.one('SELECT name, projectname, description, data FROM datasets WHERE id = (SELECT max(id) FROM datasets WHERE hash = $1)', hash,
+    await db.one('SELECT name, projectname, description, data, share FROM datasets WHERE id = (SELECT max(id) FROM datasets WHERE hash = $1)', hash,
                  row => {
                      metadata.name = row.name;
                      metadata.projectname = row.projectname;
                      metadata.description = row.description;
                      metadata.data = row.data;
+                     metadata.share = row.share;
                  });
     return metadata;
 }

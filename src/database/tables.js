@@ -7,6 +7,12 @@ const types = [
         create: (db) => db.none(`
             CREATE TYPE dsetoperation AS ENUM('created', 'read', 'deleted');
         `),
+    },
+    {
+        name: 'sharestate',
+        create: (db) => db.none(`
+            CREATE TYPE sharestate AS ENUM('private', 'internal', 'public');
+        `),
     }
 ];
 const tables = [
@@ -35,7 +41,7 @@ const tables = [
     },
     {
         name: 'datasets',
-        columns: ['id', 'hash', 'name', 'projectname', 'description', 'data', 'generator'],
+        columns: ['id', 'hash', 'name', 'projectname', 'description', 'data', 'generator', 'share'],
         create: (db) => db.none(`
             CREATE TABLE datasets(
                 id              SERIAL              NOT NULL PRIMARY KEY,
@@ -44,7 +50,8 @@ const tables = [
                 projectname     text,
                 description     text,
                 data            JSON,
-                generator       SERIAL              NOT NULL REFERENCES datagenerators(id)
+                generator       SERIAL              NOT NULL REFERENCES datagenerators(id),
+                share           sharestate          NOT NULL DEFAULT 'internal'
             );
         `),
     },

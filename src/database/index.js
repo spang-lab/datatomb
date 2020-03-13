@@ -2,6 +2,8 @@ import createDatabase from './init.js';
 export { getLog, addLog } from './log.js';
 export { exists as dsetExistsInDb,
          get as getMetadata,
+         getCreator,
+         getShareState,
          add as addDatasetToDb } from './datasets.js';
 
 let db = null;
