@@ -52,9 +52,6 @@ Below is prefixed with `/api/v1/`.
 ### `GET /meta/<hash>`
 returns all metadata of `<hash>` as json object.
 
-### `PUT /meta/<hash>`
-puts metadata of `<hash>` on datatomb.
-
 ### `GET /meta/search?<query>`
 returns a list of hashes. `query` may be any key-value pair combining
   - `any`: free text search in all fields
@@ -78,11 +75,36 @@ TODO: anything else??
 ### `GET /log/<hash>`
 If you are the owner of the dataset `<hash>` (or admin), you may see the access history to that data set.
 ### `GET /<hash>`
-downloads dataset
-### `PUT /<hash>`
-uploads dataset
+downloads dataset, if you are allowed to.
+### `POST /upload`
+uploads dataset: Multiform-post with exactly two fields:
+  - `file`: the file to upload
+  - `data`: json object that contains all metadata
+  
+Example for a `data` object:
+```
+{
+  "tags": ["testtag1", "testtag2"],
+  "name": "testfile",
+  "projectname": "testproject",
+  "description": "this is a long description for such a short file.",
+  "share": "internal",
+  "data": {
+      "someadditional": "data",
+      "count": 1
+    },
+  "generator": {
+      "kind": "manual",
+      "instance": "my brain",
+      "ref": null
+    }
+}
+```
+
+field names are mostly self explicatory. There are three possible values for `share`: `private`, `internal` (default) and `public`. `private` means only you can download and change the file. `internal` means any registered and authenticated datatomb user may download the file, but only you may delete it and `public` means access is possible without authentication. This holds for actual data and metadata. logs are always only readable by the owner and admins.
+
 ### `DELETE /<hash>`
-If you are the owner of a dataset or admin (TODO: maybe don't allow this?!?! maybe only admin may?), you may remove your published data sets.
+If you are the owner of a dataset or admin, you may remove your published data sets.
 
 ### `GET /healthy`
 return 1 if healthy / ready for connections.
