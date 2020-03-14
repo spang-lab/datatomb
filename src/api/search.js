@@ -89,8 +89,19 @@ const processQueries = async (db, queries) => {
 };
 export const search = async (ctx) => {
     const db = getDb();
-    // const result = await queryTag(db, ctx.request.query['tag']);
     const result = await processQueries(db, ctx.request.query);
+
+    // remove deleted datasets. could add this restriction to the queries, but that complicates the queries a bit. so going with this for the moment.
+    const pfileexists = result.map((hash) => { return datasetFileExists(ctx, hash);});
     // filter out dsets that are not meant for this user:
-    ctx.body = JSON.stringify(result.filter(hash => mayRead(db, ctx.state.authdata, hash)));
+    const preadable = result.map((hash) => { return mayRead(db, ctx.state.authdata, hash);});
+    const fileexists = await Promise.all(pfileexists);
+    const readable = await Promise.all(preadable);
+
+    ctx.body = JSON.stringify(
+        result
+            .filter((hash, index) => {
+                return (fileexists[index] & readable[index]);
+            })
+    );
 };
