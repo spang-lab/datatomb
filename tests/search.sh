@@ -7,4 +7,4 @@ source ./creds.src
 #curl -X GET -H "Authorization: $token" "${BASEURL}/meta/search?description=another&tag=testtag1&author=jsimeth"
 #curl -X GET -H "Authorization: $token" "${BASEURL}/meta/search?author=jsimeth&tag=derived"
 #curl -X GET -H "Authorization: $token" "${BASEURL}/meta/search?author=jsimeth&any=derived"
-curl -X GET -H "Authorization: $token" "${BASEURL}/meta/search?author=jsimeth&before=2020-01-01"
+curl -X GET -H "Authorization: $token" "${BASEURL}/meta/search?author=jsimeth&after=2020-01-01"

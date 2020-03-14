@@ -97,8 +97,15 @@ export const add = async function(db, hash, metadata) {
     // generate data set itself:
     const dsetid = await getInsertDatasetId(db, hash, metadata, datagenid);
     // if there is a parent, generate the relation to it:
-    if( metadata.parent ) {
-        await db.none('INSERT INTO parentdatasets(child, parent) VALUES($/thisdset/, (SELECT MAX(id) FROM datasets where hash = $/parenthash/))', {thisdset: dsetid, parenthash: metadata.parent});
+    if( metadata.parents ) {
+        var parents = null;
+        if( Array.isArray(metadata.parents) ) {
+            parents = metadata.parents;
+        } else {
+            parents = [ metadata.parents ];
+        }
+        const p = parents.map((parenthash) => db.none('INSERT INTO parentdatasets(child, parent) VALUES($/thisdset/, (SELECT MAX(id) FROM datasets where hash = $/parenthash/))', {thisdset: dsetid, parenthash: parenthash}));
+        await Promise.all(p);
     }
 
     // add tags to the dataset:
@@ -111,8 +118,8 @@ const getTags = async function(db, hash) {
 const getGenerator = async function(db, hash) {
     return db.one('SELECT kind, instance, ref FROM datagenerators WHERE id IN (SELECT generator FROM datasets where id = (SELECT max(id) FROM datasets WHERE hash = $1))', hash, row => { return {kind: row.kind, instance: row.instance, ref: row.ref}; });
 }
-const getParent = async function(db, hash) {
-    return db.oneOrNone('SELECT hash FROM datasets WHERE id = (SELECT parent FROM parentdatasets WHERE child = (SELECT MAX(id) FROM datasets WHERE hash = $1))', hash,
+const getParents = async function(db, hash) {
+    return db.map('SELECT hash FROM datasets WHERE id IN (SELECT parent FROM parentdatasets WHERE child = (SELECT MAX(id) FROM datasets WHERE hash = $1))', hash,
                         row => {
                             if( row ) {
                                 return(row.hash);
@@ -129,7 +136,7 @@ export const get = async function(db, hash) {
     let metadata = {
         tags: await getTags(db, hash),
         generator: await getGenerator(db, hash),
-        parent: await getParent(db, hash),
+        parents: await getParents(db, hash),
         children: await getChildren(db, hash)
     };
     await db.one('SELECT name, projectname, description, data, share FROM datasets WHERE id = (SELECT max(id) FROM datasets WHERE hash = $1)', hash,
