@@ -1,6 +1,6 @@
 import { log } from '../util/index.js';
 
-export const addLog = (db, hash, user, operation) => {
+export const addLog = async (db, hash, user, operation) => {
     log(`add log entry for hash: ${hash}, action: ${operation}`);
     return db.none('INSERT INTO log(operation, who, time, dataset) VALUES($/operation/, $/user/, $/timestamp/, (SELECT MAX(id) from datasets where hash = $/hash/))',
         {

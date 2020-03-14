@@ -87,7 +87,9 @@ export const getDataset = async (ctx) => {
     }
     log(`getting dataset for hash = ${hash}`);
     // log read:
-    const p = addLog(ctx, hash, 'read');
+    const { user } = ctx.state.authdata;
+    const db = getDb();
+    const p = addLog(db, hash, user, 'read');
 
     // send the data:
     const dsetstore = await getDsetstore(ctx);
@@ -106,7 +108,9 @@ export const rmDataset = async (ctx) => {
         throw (new Error(`dataset ${hash} does not exist.`));
     }
     // log deletion:
-    const p = addLog(ctx, hash, 'deleted');
+    const { user } = ctx.state.authdata;
+    const db = getDb();
+    const p = addLog(db, hash, user, 'deleted');
 
     const dsetstore = await getDsetstore(ctx);
     if (!dsetstore.writable) {
