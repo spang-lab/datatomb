@@ -1,4 +1,4 @@
-import { log } from '../util/index.js';
+import { log, datasetFileExists } from '../util/index.js';
 import { getDb, mayRead } from '../database/index.js';
 import pgPromise from 'pg-promise';
 const pgp = pgPromise({capSQL: true});
