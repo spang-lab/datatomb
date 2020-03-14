@@ -16,7 +16,6 @@ export default async (ctx, next) => {
     const authtoken = ctx.header.authorization;
 
     if( authtoken ) {
-        log(`querying authtoken = ${authtoken}`);
         const config = getConfig();
         const { url, usergroup, admingroup} = config.authserver;
 
@@ -28,7 +27,7 @@ export default async (ctx, next) => {
         })
         .then(res => res.json());
 
-        console.log(userdata);
+        console.log(`user ${userdata.sub} authenticated.`);
 
         ctx.state.authdata = {
             user: userdata.sub,
@@ -36,7 +35,6 @@ export default async (ctx, next) => {
             isUser: isInGroup(userdata, usergroup),
             authenticated: true
         };
-        console.log(ctx.state.authdata);
     } else {
         log(`anonymous access`);
         ctx.state.authdata = {
