@@ -13,7 +13,7 @@ const types = [
         create: (db) => db.none(`
             CREATE TYPE sharestate AS ENUM('private', 'internal', 'public');
         `),
-    }
+    },
 ];
 const tables = [
     {
@@ -57,7 +57,7 @@ const tables = [
     },
     {
         name: 'log',
-        columns: ['id', 'operation', 'who', 'time', 'dataset' ],
+        columns: ['id', 'operation', 'who', 'time', 'dataset'],
         create: (db) => db.none(`
             CREATE TABLE log(
                 id              SERIAL              PRIMARY KEY NOT NULL,

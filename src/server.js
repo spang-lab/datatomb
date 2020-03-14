@@ -1,20 +1,22 @@
 import Koa from 'koa';
 import getBaseRouter from './api/router.js';
-import {createConfig} from './util/index.js';
-import {createDb} from './database/index.js';
-import {create as createDsetstore,
-        get as getDsetstore} from './context/dsetstore.js';
+import { log, createConfig } from './util/index.js';
+import { createDb } from './database/index.js';
+import {
+    create as createDsetstore,
+    get as getDsetstore,
+} from './context/dsetstore.js';
 
 const server = async () => {
     const app = new Koa();
     const router = await getBaseRouter();
     const config = await createConfig();
-    const {port, datasetpath} = config.server;
-    console.log(`port: ${port}`);
+    const { port, datasetpath } = config.server;
+    log(`listening on port: ${port}`);
 
     await createDsetstore(datasetpath);
     app.context.dsetstore = await getDsetstore();
-    console.log(app.context.dsetstore);
+    log(`storing datasets in ${app.context.dsetstore.path} (which is ${app.context.dsetstore.writable ? 'writable' : 'read-only'}).`);
     await createDb();
 
     app.use(router.routes());

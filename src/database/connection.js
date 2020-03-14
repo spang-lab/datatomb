@@ -2,7 +2,7 @@
 import pgPromise from 'pg-promise';
 import {
     log,
-    getConfig
+    getConfig,
 } from '../util/index.js';
 
 const state = {
@@ -11,10 +11,10 @@ const state = {
     isReady: false,
 };
 
-const delay = (ms = 1000) => new Promise(r => setTimeout(r, ms));
+const delay = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
 
-const logQuery = ev => log(`QUERY: ${ev.query}`);
-const logReceive = data => log(`Recieved ${data.length} rows.`);
+const logQuery = (ev) => log(`QUERY: ${ev.query}`);
+const logReceive = (data) => log(`Recieved ${data.length} rows.`);
 
 const isReady = async () => {
     try {
@@ -33,10 +33,11 @@ const isReady = async () => {
 export const connect = async () => {
     const config = getConfig();
     const db = config.database;
-    const { POSTGRES_USER : postgresUser,
-            POSTGRES_PASSWORD : postgresPassword,
-            DEBUG : debug }
-          = config.secrets;
+    const {
+        POSTGRES_USER: postgresUser,
+        POSTGRES_PASSWORD: postgresPassword,
+        DEBUG: debug,
+    } = config.secrets;
     log(`
         Host: ${db.host},
         Database: ${db.database}
