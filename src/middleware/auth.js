@@ -27,7 +27,7 @@ export default async (ctx, next) => {
         })
         .then(res => res.json());
 
-        console.log(`user ${userdata.sub} authenticated.`);
+        log(`user ${userdata.sub} authenticated.`);
 
         ctx.state.authdata = {
             user: userdata.sub,
