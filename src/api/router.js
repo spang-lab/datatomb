@@ -22,6 +22,7 @@ const getApiRouter = async () => {
     apirouter.get('/meta/:hash', mayRead, async (ctx) => { await getMetadata(ctx); });
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.post('/upload', isUser, async (ctx) => { await uploadDataset(ctx); });
+    apirouter.get('/auth', isUser, (ctx) => { ctx.body = ctx.state.authdata; });
     apirouter.get('/log/:hash', isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
     apirouter.get('/:hash', mayRead, async (ctx) => { await getDataset(ctx); });
     apirouter.del('/:hash', isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });

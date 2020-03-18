@@ -108,6 +108,9 @@ field names are mostly self explicatory. There are three possible values for `sh
 ### `DELETE /<hash>`
 If you are the owner of a dataset or admin, you may remove your published data sets.
 
+### `GET /auth`
+returns user name and other authdata if a valid token was provided. Note that there is no need to call this endpoint, it is just for checking authentication and getting user permissions (user, admin, etc)
+
 ### `GET /healthy`
 return 1 if healthy / ready for connections.
 
