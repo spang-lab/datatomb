@@ -1,5 +1,5 @@
 import Router from 'koa-router';
-import * as search from './search.js';
+import search from './search.js';
 import { get as getMetadata } from './metadata.js';
 import {
     uploadDataset, getDataset, rmDataset, getLog,
