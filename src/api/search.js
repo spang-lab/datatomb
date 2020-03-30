@@ -76,7 +76,7 @@ const search = async (ctx) => {
 
     ctx.body = JSON.stringify(
         result
-            .filter((hash, index) => (fileexists[index] && readable[index])),
+            .filter((hash, index) => (readable[index])),
     );
 };
 export { search as default };
