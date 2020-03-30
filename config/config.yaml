@@ -1,6 +1,6 @@
 database:
   host: postgres.spang-lab.de
-  database: datatomb
+  database: datatomb_test
   port: 5432
 
 server:
