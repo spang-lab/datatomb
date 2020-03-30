@@ -43,8 +43,11 @@ export const connect = async () => {
         Database: ${db.database}
         Port: ${db.port}
     `);
+    if( ! postgresUser || ! postgresPassword ) {
+        throw(new Error('no postgres db credentials given.'));
+    }
     const initOptions = {};
-    if (debug.includes('database')) {
+    if (debug && debug.includes('database')) {
         initOptions.query = logQuery;
         initOptions.receive = logReceive;
     }
