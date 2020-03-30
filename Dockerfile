@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:13-alpine
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -8,4 +8,4 @@ RUN npm install
 ADD . /usr/src/app
 
 EXPOSE 80
-CMD ["node", "--experimental-modules", "index.js"]
+CMD ["node", "index.js"]
