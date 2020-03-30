@@ -1,10 +1,8 @@
-kubectl -n authentication delete configmap auth-server-config
-kubectl -n authentication create configmap auth-server-config \
-    --from-file='./config/main.yaml' \
-    --from-file='./config/keys.yaml' \
-    --from-file='./config/clients.yaml'
+kubectl -n authentication delete configmap datatomb-config
+kubectl -n authentication create configmap datatomb-config \
+    --from-file='./config.yaml' \
 
 # change something in the deployment so it gets rolled out again
-kubectl -n authentication patch deployment auth-server-deployment -p \
+kubectl -n data-management patch deployment datatomb-deployment -p \
     "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-update\":\"`date +'%s'`\"}}}}}"
 
