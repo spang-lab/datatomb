@@ -11,6 +11,7 @@ import {
     isUser,
     isOwnerOrAdmin,
     mayRead,
+    hashExists,
 } from '../middleware/index.js';
 
 const getApiRouter = async () => {
@@ -19,13 +20,13 @@ const getApiRouter = async () => {
     apirouter.use(apiTransaction);
     apirouter.use(apiAuth);
     apirouter.get('/meta/search', isUser, async (ctx) => { await search(ctx); });
-    apirouter.get('/meta/:hash', mayRead, async (ctx) => { await getMetadata(ctx); });
+    apirouter.get('/meta/:hash', hashExists, mayRead, async (ctx) => { await getMetadata(ctx); });
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.post('/upload', isUser, async (ctx) => { await uploadDataset(ctx); });
     apirouter.get('/auth', (ctx) => { ctx.body = ctx.state.authdata; });
-    apirouter.get('/log/:hash', isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
-    apirouter.get('/:hash', mayRead, async (ctx) => { await getDataset(ctx); });
-    apirouter.del('/:hash', isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
+    apirouter.get('/log/:hash', hashExists, isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
+    apirouter.get('/:hash', hashExists, mayRead, async (ctx) => { await getDataset(ctx); });
+    apirouter.del('/:hash', hashExists, isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
     return apirouter;
 };
 

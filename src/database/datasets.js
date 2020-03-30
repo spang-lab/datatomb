@@ -38,8 +38,9 @@ export const mayRead = async (db, authdata, hash) => {
     } if (share === 'internal') {
         if (authdata.isUser) {
             return true;
+        } else {
+            return false;
         }
-        throw (new Error('user is not a datatomb user.'));
     } else if (share === 'private') {
         const owner = await getCreator(db, hash);
         if (owner === authdata.user) {

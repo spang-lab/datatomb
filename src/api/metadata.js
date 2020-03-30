@@ -6,7 +6,13 @@ import {
 export const add = async (ctx) => {
     log(`receiving metadata for hash = ${ctx.state.hash}`);
     const db = getDb();
-    await addDatasetToDb(db, ctx.state.hash, ctx.state.meta);
+    try {
+        await addDatasetToDb(db, ctx.state.hash, ctx.state.meta);
+    } catch(e) {
+        ctx.throw(400,
+                  `cannot add metadata to db: ${e.message}`);
+
+    }
 };
 export const get = async (ctx) => {
     const { hash } = ctx.params;

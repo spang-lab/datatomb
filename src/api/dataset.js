@@ -58,7 +58,7 @@ export const uploadDataset = async (ctx) => {
     const finalfilename = [dsetstore.path, hashrep].join('/');
     if (await fs.exists(finalfilename)) {
         await fs.remove(tmpfilename);
-        throw (new Error('file already exists. cannot upload twice.'));
+        ctx.throw(400, 'file already exists. cannot upload twice.');
     }
 
     // move tmpfile to its final destination (hash):
@@ -67,7 +67,12 @@ export const uploadDataset = async (ctx) => {
     // add metadata for this file:
     ctx.state.hash = hashrep;
     ctx.state.meta = metadata;
-    await addMetadata(ctx);
+    try {
+        await addMetadata(ctx);
+    } catch(e) {
+        await fs.remove(finalfilename);
+        throw e;
+    }
     const db = getDb();
     const { user } = ctx.state.authdata;
     await addLog(db, hashrep, user, 'created');
@@ -76,15 +81,13 @@ export const uploadDataset = async (ctx) => {
         {
             hash: hashrep,
             algo: 'sha256sum',
+            action: 'created'
         },
     );
 };
 
 export const getDataset = async (ctx) => {
     const { hash } = ctx.params;
-    if (!await datasetExists(ctx, hash)) {
-        throw (new Error(`dataset ${hash} does not exist.`));
-    }
     log(`getting dataset for hash = ${hash}`);
     // log read:
     const { user } = ctx.state.authdata;
@@ -104,27 +107,40 @@ export const getDataset = async (ctx) => {
 export const rmDataset = async (ctx) => {
     const { hash } = ctx.params;
     log(`removing dataset for hash = ${ctx.params.hash}`);
-    if (!await datasetExists(ctx, hash)) {
-        throw (new Error(`dataset ${hash} does not exist.`));
-    }
     // log deletion:
-    const { user } = ctx.state.authdata;
-    const db = getDb();
-    const p = addLog(db, hash, user, 'deleted');
-
-    const dsetstore = await getDsetstore(ctx);
-    if (!dsetstore.writable) {
-        throw (new Error('dataset store is not writable.'));
-    }
-    const filename = [dsetstore.path, hash].join('/');
-    if (!await fs.exists(filename)) {
-        throw (new Error(`dataset ${hash} does not exist.`));
+    try {
+        const { user } = ctx.state.authdata;
+        const db = getDb();
+        const p = addLog(db, hash, user, 'deleted');
+        await p;
+    } catch (e) {
+        ctx.throw(500,
+                  `cannot log dataset removal: ${e.message}`);
     }
 
-    await fs.remove(filename);
+    try {
+        const dsetstore = await getDsetstore(ctx);
+        if (!dsetstore.writable) {
+            throw (new Error('dataset store is not writable.'));
+        }
+        const filename = [dsetstore.path, hash].join('/');
+        if (!await fs.exists(filename)) {
+            throw (new Error(`dataset ${hash} does not exist.`));
+        }
 
-    ctx.body = `${hash}`;
-    await p;
+        await fs.remove(filename);
+    } catch (e) {
+        ctx.throw(500,
+                  `cannot remove the file: ${e.message}`);
+    }
+
+    ctx.body = JSON.stringify(
+        {
+            hash: hash,
+            algo: 'sha256sum',
+            action: 'deleted'
+        }
+    );
 };
 export const getLog = async (ctx) => {
     log(`getting log for hash = ${ctx.params.hash}`);

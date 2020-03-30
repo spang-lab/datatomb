@@ -3,12 +3,16 @@ import { getDb, getCreator } from '../database/index.js';
 
 export default async (ctx, next) => {
     const { hash } = ctx.params;
-    if (!hash) {
-        throw (new Error('no hash in context.'));
-    }
-    if (!ctx.state.authdata.isUser) {
-        throw (new Error('only available to registered and allowed users.'));
-    }
+    ctx.assert(hash,
+               500,
+               'no hash in context.');
+    ctx.assert(ctx.state.authdata,
+               500,
+               'no authdata in context');
+    ctx.assert(ctx.state.authdata.isUser,
+               401,
+               'only available to registered and allowed users.');
+
     const db = getDb();
     if (ctx.state.authdata.isAdmin) {
         log(`admin access for ${ctx.state.authdata.user}`);
@@ -20,7 +24,8 @@ export default async (ctx, next) => {
             log(`owner access for ${ctx.state.authdata.user}`);
             await next();
         } else {
-            throw (new Error(`user ${ctx.state.authdata} is neither owner of ${hash} nor admin.`));
+            ctx.throw(401,
+                      `user ${ctx.state.authdata} is neither owner of ${hash} nor admin.`);
         }
     }
 };
