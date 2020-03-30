@@ -24,7 +24,7 @@ const getApiRouter = async () => {
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.post('/upload', isUser, async (ctx) => { await uploadDataset(ctx); });
     apirouter.get('/auth', (ctx) => { ctx.body = ctx.state.authdata; });
-    apirouter.get('/log/:hash', hashExists, isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
+    apirouter.get('/log/:hash', isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
     apirouter.get('/:hash', hashExists, mayRead, async (ctx) => { await getDataset(ctx); });
     apirouter.del('/:hash', hashExists, isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
     return apirouter;
