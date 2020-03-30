@@ -1,0 +1,13 @@
+database:
+  host: postgres.spang-lab.de
+  database: datatomb
+  port: 5432
+
+server:
+  port: 80
+  datasetpath: /tmp/datatomb
+
+authserver:
+  url: https://auth.spang-lab.de/api/v1/token/check
+  usergroup: datatomb
+  admingroup: datatombadmin
