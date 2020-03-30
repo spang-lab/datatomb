@@ -5,7 +5,7 @@ import Busboy from 'busboy';
 import { log } from '../util/index.js';
 import { add as addMetadata } from './metadata.js';
 import {
-    getDb, addLog, getLog as getLogFromDb, datasetExists,
+    getDb, addLog, getLog as getLogFromDb,
 } from '../database/index.js';
 import { get as getDsetstore } from '../context/dsetstore.js';
 
@@ -69,7 +69,7 @@ export const uploadDataset = async (ctx) => {
     ctx.state.meta = metadata;
     try {
         await addMetadata(ctx);
-    } catch(e) {
+    } catch (e) {
         await fs.remove(finalfilename);
         throw e;
     }
@@ -81,7 +81,7 @@ export const uploadDataset = async (ctx) => {
         {
             hash: hashrep,
             algo: 'sha256sum',
-            action: 'created'
+            action: 'created',
         },
     );
 };
@@ -115,7 +115,7 @@ export const rmDataset = async (ctx) => {
         await p;
     } catch (e) {
         ctx.throw(500,
-                  `cannot log dataset removal: ${e.message}`);
+            `cannot log dataset removal: ${e.message}`);
     }
 
     try {
@@ -131,15 +131,15 @@ export const rmDataset = async (ctx) => {
         await fs.remove(filename);
     } catch (e) {
         ctx.throw(500,
-                  `cannot remove the file: ${e.message}`);
+            `cannot remove the file: ${e.message}`);
     }
 
     ctx.body = JSON.stringify(
         {
-            hash: hash,
+            hash,
             algo: 'sha256sum',
-            action: 'deleted'
-        }
+            action: 'deleted',
+        },
     );
 };
 export const getLog = async (ctx) => {

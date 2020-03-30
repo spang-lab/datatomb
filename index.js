@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { server } from './src/index.js';
+import server from './src/index.js';
 
 (async () => {
     try {

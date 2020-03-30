@@ -17,8 +17,8 @@ export default async (ctx, next) => {
     if (authtoken) {
         const config = getConfig();
         ctx.assert(config.authserver,
-                   500,
-                   'auth server not configured.');
+            500,
+            'auth server not configured.');
 
         const { url, usergroup, admingroup } = config.authserver;
 
@@ -31,21 +31,21 @@ export default async (ctx, next) => {
 
         log(`user ${userdata.sub} authenticated.`);
 
-        if( typeof userdata.ok !== 'undefined' && ! userdata.ok) {
-            if( userdata.error ) {
+        if (typeof userdata.ok !== 'undefined' && !userdata.ok) {
+            if (userdata.error) {
                 ctx.throw(401,
-                            `authserver returned: ${userdata.error}`);
+                    `authserver returned: ${userdata.error}`);
             } else {
                 ctx.throw(502,
-                            'authserver returned generic error.');
+                    'authserver returned generic error.');
             }
         }
         ctx.assert(userdata.groups,
-                   502,
-                   'authserver did not return groups.');
+            502,
+            'authserver did not return groups.');
         ctx.assert(userdata.sub,
-                   502,
-                   'authserver did not return user name (sub).');
+            502,
+            'authserver did not return user name (sub).');
 
         ctx.state.authdata = {
             user: userdata.sub,

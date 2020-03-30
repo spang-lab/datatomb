@@ -8,10 +8,9 @@ export const add = async (ctx) => {
     const db = getDb();
     try {
         await addDatasetToDb(db, ctx.state.hash, ctx.state.meta);
-    } catch(e) {
+    } catch (e) {
         ctx.throw(400,
-                  `cannot add metadata to db: ${e.message}`);
-
+            `cannot add metadata to db: ${e.message}`);
     }
 };
 export const get = async (ctx) => {

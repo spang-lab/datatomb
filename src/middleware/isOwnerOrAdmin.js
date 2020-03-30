@@ -4,14 +4,14 @@ import { getDb, getCreator } from '../database/index.js';
 export default async (ctx, next) => {
     const { hash } = ctx.params;
     ctx.assert(hash,
-               500,
-               'no hash in context.');
+        500,
+        'no hash in context.');
     ctx.assert(ctx.state.authdata,
-               500,
-               'no authdata in context');
+        500,
+        'no authdata in context');
     ctx.assert(ctx.state.authdata.isUser,
-               401,
-               'only available to registered and allowed users.');
+        401,
+        'only available to registered and allowed users.');
 
     const db = getDb();
     if (ctx.state.authdata.isAdmin) {
@@ -25,7 +25,7 @@ export default async (ctx, next) => {
             await next();
         } else {
             ctx.throw(401,
-                      `user ${ctx.state.authdata} is neither owner of ${hash} nor admin.`);
+                `user ${ctx.state.authdata} is neither owner of ${hash} nor admin.`);
         }
     }
 };

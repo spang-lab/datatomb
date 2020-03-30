@@ -38,18 +38,16 @@ export const mayRead = async (db, authdata, hash) => {
     } if (share === 'internal') {
         if (authdata.isUser) {
             return true;
-        } else {
-            return false;
         }
-    } else if (share === 'private') {
+        return false;
+    } if (share === 'private') {
         const owner = await getCreator(db, hash);
         if (owner === authdata.user) {
             return true;
         }
         return false;
-    } else {
-        throw (new Error('unknown sharestate.'));
     }
+    throw (new Error('unknown sharestate.'));
 };
 
 const getInsertTagId = (db, tag) => db.task('getInsertTagId', (t) => t.oneOrNone('SELECT id FROM tags WHERE name = $1', tag, (t1) => t1 && t1.id)

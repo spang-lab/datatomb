@@ -6,11 +6,11 @@ import {
 export default async (ctx, next) => {
     const { hash } = ctx.params;
     ctx.assert(hash,
-               500,
-               'no hash in context.');
+        500,
+        'no hash in context.');
     const db = getDb(ctx);
     ctx.assert(await datasetExists(db, hash),
-               404,
-               `hash ${hash} does not exist.`);
+        404,
+        `hash ${hash} does not exist.`);
     await next();
 };

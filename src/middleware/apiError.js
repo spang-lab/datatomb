@@ -1,4 +1,4 @@
-import {log, dbg, COLOR} from '../util/index.js';
+import { log, COLOR } from '../util/index.js';
 
 export default async (ctx, next) => {
     try {

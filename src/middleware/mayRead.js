@@ -6,8 +6,8 @@ import {
 export default async (ctx, next) => {
     const { hash } = ctx.params;
     ctx.assert(hash,
-               500,
-               'no hash in context.');
+        500,
+        'no hash in context.');
 
     const db = getDb();
     if (await mayRead(db, ctx.state.authdata, hash)) {
