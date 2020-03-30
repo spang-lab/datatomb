@@ -27,7 +27,7 @@ const getSecrets = () => {
 
 export const createConfig = async () => {
     log('Loading configuration...');
-    const data = await loadFile('config.yaml');
+    const data = await loadFile('config/config.yaml');
     const secrets = await getSecrets();
     data.secrets = secrets;
     log('Config loaded successfully');
