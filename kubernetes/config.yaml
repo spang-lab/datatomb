@@ -5,7 +5,7 @@ database:
 
 server:
   port: 80
-  datasetpath: /tmp/datatomb
+  datasetpath: /datastore
 
 authserver:
   url: https://auth.spang-lab.de/api/v1/token/check

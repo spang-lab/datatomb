@@ -26,6 +26,8 @@ spec:
         volumeMounts:
         - name: config
           mountPath: /usr/src/app/config
+        - name: datatomb-store
+          mountPath: /datastore
         env:
         - name: NODE_ENV
           value: production
@@ -53,3 +55,6 @@ spec:
       - name: config
         configMap:
           name: datatomb-config
+      - name: datatomb-store
+        persistentVolumeClaim:
+          claimName: data-store-pvc
