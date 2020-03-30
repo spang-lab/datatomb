@@ -1,2 +1,3 @@
 source ./secret.src
+#BASEURL=https://data.spang-lab.de/api/v1
 BASEURL=http://localhost:8080/api/v1

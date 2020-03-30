@@ -1,0 +1,9 @@
+{
+  "ext": "js",
+  "env": {
+    "NODE_ENV": "development",
+    "POSTGRES_USER": "postgresuser",
+    "POSTGRES_PASSWORD": "wb09epnDHTAypI5l",
+    "DEBUG": "true"
+  }
+}
