@@ -21,7 +21,7 @@ spec:
       - name: datatomb
         image: gitlab.spang-lab.de:4687/containers/datatomb:0.1.1
         ports:
-        - containerPort: 80
+        - containerPort: 8080
           name: http
         volumeMounts:
         - name: config
@@ -58,3 +58,5 @@ spec:
       - name: datatomb-store
         persistentVolumeClaim:
           claimName: data-store-pvc
+      securityContext:
+        runAsUser: 1000
