@@ -1,0 +1,12 @@
+before_script:
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+build-tagged:
+  stage: build
+  script:
+    - export VERSION=`grep 'version' package.json | cut -d ':' -f 2 | sed -e 's/[", ]//g'`
+    - docker build --tag $CI_REGISTRY_IMAGE:$VERSION --tag $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:$VERSION
+    - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    - master
