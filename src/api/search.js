@@ -1,10 +1,10 @@
 import { datasetFileExists } from '../util/index.js';
 import { getDb, mayRead } from '../database/index.js';
 
-const queryName = async (db, val) => db.map('SELECT hash FROM datasets WHERE name LIKE $1', val, (r) => r.hash);
-const queryAuthor = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset from log WHERE who LIKE $1 AND operation = $2)', [val, 'created'], (r) => r.hash);
-const queryTag = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset FROM datasettags WHERE tag IN (SELECT id FROM tags WHERE name LIKE $1))', val, (r) => r.hash);
-const queryDescription = async (db, val) => db.map('SELECT hash FROM datasets WHERE description LIKE $1', `%${val}%`, (r) => r.hash);
+const queryName = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE name LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);
+const queryAuthor = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset from log WHERE who LIKE $1 AND operation = $2 EXCEPT SELECT dataset FROM log WHERE operation = $3)', [val, 'created', 'deleted'], (r) => r.hash);
+const queryTag = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset FROM datasettags WHERE tag IN (SELECT id FROM tags WHERE name LIKE $1) EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);
+const queryDescription = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE description LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [`%${val}%`, 'deleted'], (r) => r.hash);
 const queryAny = async (db, val) => {
     // we may also use 'multi' which would be more efficient. but this leads to code doubling...?
     const allresults = await Promise.all([
@@ -18,11 +18,11 @@ const queryAny = async (db, val) => {
 };
 const queryAfter = async (db, val) => {
     const date = new Date(val);
-    return db.map('SELECT hash FROM datasets WHERE id in (SELECT dataset FROM log WHERE operation = $1 AND time > $2)', ['created', date], (r) => r.hash);
+    return db.map('SELECT hash FROM datasets WHERE id in (SELECT dataset FROM log WHERE operation = $1 AND time > $2 EXCEPT SELECT dataset FROM log WHERE operation = $3)', ['created', date, 'deleted'], (r) => r.hash);
 };
 const queryBefore = async (db, val) => {
     const date = new Date(val);
-    return db.map('SELECT hash FROM datasets WHERE id in (SELECT dataset FROM log WHERE operation = $1 AND time < $2)', ['created', date], (r) => r.hash);
+    return db.map('SELECT hash FROM datasets WHERE id in (SELECT dataset FROM log WHERE operation = $1 AND time < $2 EXCEPT SELECT dataset FROM log WHERE operation = $3)', ['created', date, 'deleted'], (r) => r.hash);
 };
 
 const query = (db, kind, searchstr) => {
@@ -70,13 +70,8 @@ const search = async (ctx) => {
     const db = getDb();
     const result = await processQueries(db, ctx.request.query);
 
-    // remove deleted datasets.
-    // could add this restriction to the queries, but that complicates the queries a bit.
-    // so going with this for the moment.
-    const pfileexists = result.map((hash) => datasetFileExists(ctx, hash));
     // filter out dsets that are not meant for this user:
     const preadable = result.map((hash) => mayRead(db, ctx.state.authdata, hash));
-    const fileexists = await Promise.all(pfileexists);
     const readable = await Promise.all(preadable);
 
     ctx.body = JSON.stringify(
