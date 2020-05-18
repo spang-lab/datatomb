@@ -23,9 +23,6 @@ In a first step, there are only two roles: Owner / user and admin. The admin may
 ### Possible feature: Browsing datasets
 A frontend may be added to search for datasets other than over the API.
 
-### Possible feature: Webhooks
-Users may register webhooks that are triggered upon upload of datasets with specific tags or so. If such an event happens, the server sends a POST request to a server the user may specify. This is useful for automatic analysis of recurring, similar datasets.
-
 ## Server config
 ### server
   - `port` the port on which the server is listening for requests.
@@ -111,6 +108,39 @@ If you are the owner of a dataset or admin, you may remove your published data s
 ### `GET /auth`
 returns user name and other authdata if a valid token was provided. Note that there is no need to call this endpoint, it is just for checking authentication and getting user permissions (user, admin, etc)
 
+### `GET /webhooks/<id>`
+returns information about the webhook with id `<id>` if it is yours or you are admin.
+
+### `POST /webhooks/register`
+register a new webhook:
+```json
+{
+  "on_tag": "tag",
+  "on_author": "author",
+  "url": "https://some.url/that/expects/post",
+  "authenticate": true
+}
+```
+and returns the id of the now webhook.
+
+Either `on_tag` or `on_author` may be `null`, but not both. If both are not-null, then the condition is "and"ed (i.e., the above example fires if `author` pushed a dataset with a tag `tag` but not if he/she pushed a dataset that does not contain the tag `tag` and also not if someone else pushed a dataset with the tag). There are no checks that `author` and `tag` really exists (both for privacy reasons and because the `tag` may only exist at a later point in time, namely when the data is being pushed).
+
+If `authenticate` is set to `true`, the `POST` to `url` will contain the authentication token that was used to push the dataset (and the hook can run as the user that pushed the dataset and, in particular, also push results back to datatomb). If it is set to `false`, the token will be kept private.
+
+`url` must be an url to which we can `POST` the following object:
+```
+{
+  "hash": "<hash>",
+  "hook": <webhookid>,
+  "token": "<authtoken>"
+}
+```
+where `<hash>` is the dataset hash that can be used to retrieve the dataset itself and all metadata associated to it, `<webhookid>` is the id that can be used to retrieve information about the hook (and to delete it given there is a authtoken -- this enables one-shot hooks). `token` will only be present (not null), if the hook has `authenticate` set to `true` and allows the receiving server to authenticate back to datatomb (e.g., to push results).
+
+
+### `DELETE /webhooks/<id>`
+removes the webhook with this id (if you are the owner or admin).
+
 ### `GET /healthy`
 return 1 if healthy / ready for connections.
 
@@ -122,6 +152,7 @@ return 1 if healthy / ready for connections.
   - table `parentDatasets(child => datasets.hash, parent => datasets.hash)`
   - table `datasetTags(dataset => datasets.hash, tag => tags.name)`
   - table `datasets(hash primary unique, name, projectname, description, data, source => datagenerators.id)`
+  - table `webhooks(id primary, tag => tags.name, author, owner, url, authenticate)`
 
 ## Auth server
 uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.
