@@ -121,7 +121,7 @@ register a new webhook:
   "authenticate": true
 }
 ```
-and returns the id of the now webhook.
+and returns the id of the new webhook.
 
 Either `on_tag` or `on_author` may be `null`, but not both. If both are not-null, then the condition is "and"ed (i.e., the above example fires if `author` pushed a dataset with a tag `tag` but not if he/she pushed a dataset that does not contain the tag `tag` and also not if someone else pushed a dataset with the tag). There are no checks that `author` and `tag` really exists (both for privacy reasons and because the `tag` may only exist at a later point in time, namely when the data is being pushed).
 
@@ -132,7 +132,7 @@ If `authenticate` is set to `true`, the `POST` to `url` will contain the authent
 {
   "hash": "<hash>",
   "hook": <webhookid>,
-  "token": "<authtoken>"
+  "authtoken": "<authtoken>"
 }
 ```
 where `<hash>` is the dataset hash that can be used to retrieve the dataset itself and all metadata associated to it, `<webhookid>` is the id that can be used to retrieve information about the hook (and to delete it given there is a authtoken -- this enables one-shot hooks). `token` will only be present (not null), if the hook has `authenticate` set to `true` and allows the receiving server to authenticate back to datatomb (e.g., to push results).
