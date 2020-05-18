@@ -24,6 +24,7 @@ export const uploadDataset = async (ctx) => {
         let havefile = false;
         let meta = null;
         busboy.on('file', (fieldname, file) => {
+            log(`receiving file: ${fieldname}`);
             if (fieldname !== 'file') {
                 reject(new Error('only fieldnames with called "file" may contain file upload data.'));
             }
@@ -41,12 +42,14 @@ export const uploadDataset = async (ctx) => {
             });
         });
         busboy.on('field', (fieldname, val) => {
+            log(`receiving field: ${fieldname}`);
             if (fieldname !== 'data') {
                 reject(new Error('apart from the "file", only one other fieldname, "data" is allowed.'));
             }
             meta = JSON.parse(val);
         });
         busboy.on('finish', () => {
+            log('finish upload.');
             if (!havefile || !meta) {
                 reject(new Error('incomplete upload (either file or metadata is missing)'));
             }
