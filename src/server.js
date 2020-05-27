@@ -17,7 +17,7 @@ const server = async () => {
     app.context.dsetstore = await getDsetstore();
     log(`storing datasets in ${app.context.dsetstore.path} (which is ${app.context.dsetstore.writable ? 'writable' : 'read-only'}).`);
     await createDb();
-    log("done db init.");
+    log('done db init.');
 
     app.use(router.routes());
     app.use(async (ctx) => {

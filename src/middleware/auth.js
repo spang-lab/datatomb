@@ -1,8 +1,6 @@
-import fetch from 'node-fetch';
 import {
-    log,
     getConfig,
-    authenticate
+    authenticate,
 } from '../util/index.js';
 
 export default async (ctx, next) => {
@@ -10,17 +8,16 @@ export default async (ctx, next) => {
 
     const config = getConfig();
     ctx.assert(config.authserver,
-               500,
-               'auth server not configured.');
+        500,
+        'auth server not configured.');
 
-    let authdata = undefined;
+    let authdata;
     try {
         authdata = await authenticate(config.authserver, authtoken);
-    } catch(e) {
+    } catch (e) {
         ctx.throw(401, e);
     }
 
-    console.log(authdata);
     ctx.state.authdata = authdata;
     await next();
 };

@@ -1,4 +1,3 @@
-import { datasetFileExists } from '../util/index.js';
 import { getDb, mayRead } from '../database/index.js';
 
 const queryName = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE name LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);

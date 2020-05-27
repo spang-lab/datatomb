@@ -10,7 +10,7 @@ import {
     getWebhook,
     deleteWebhook,
     listWebhooks,
-    updateHookAuth
+    updateHookAuth,
 } from './webhooks.js';
 import {
     apiTransaction,
@@ -20,12 +20,12 @@ import {
     isOwnerOrAdmin,
     mayRead,
     hashExists,
-    isWebhookOwnerOrAdmin
+    isWebhookOwnerOrAdmin,
 } from '../middleware/index.js';
 
 const getApiRouter = async () => {
     const apirouter = new Router();
-    //apirouter.use(apiError);
+    apirouter.use(apiError);
     apirouter.use(apiTransaction);
     apirouter.use(apiAuth);
     apirouter.get('/meta/search', isUser, async (ctx) => { await search(ctx); });

@@ -1,8 +1,7 @@
 import fetch from 'node-fetch';
 import {
     log,
-    getConfig,
-} from '../util/index.js';
+} from './logger.js';
 
 const isInGroup = (userdata, groupname) => {
     const res = userdata.groups.find((g) => (g.name === groupname));
@@ -26,9 +25,9 @@ export default async (authserverconfig, authtoken) => {
 
         if (typeof userdata.ok !== 'undefined' && !userdata.ok) {
             if (userdata.error) {
-                throw(`authserver returned: ${userdata.error}`);
+                throw new Error(`authserver returned: ${userdata.error}`);
             } else {
-                throw('authserver returned generic error.');
+                throw new Error('authserver returned generic error.');
             }
         }
         return ({
@@ -37,13 +36,11 @@ export default async (authserverconfig, authtoken) => {
             isUser: isInGroup(userdata, usergroup),
             authenticated: true,
         });
-    } else {
-        return( {
-            user: 'anonymous',
-            isAdmin: false,
-            isUser: false,
-            authenticated: false,
-        });
     }
-    await next();
+    return ({
+        user: 'anonymous',
+        isAdmin: false,
+        isUser: false,
+        authenticated: false,
+    });
 };

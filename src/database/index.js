@@ -19,6 +19,6 @@ export {
     exists as webhookExists,
     getAuth as getWebhookAuth,
     updateAuth as updateWebhookAuth,
-    getUserToken as getWebhookUserToken
+    getUserToken as getWebhookUserToken,
 } from './webhooks.js';
 export * from './getdb.js';

@@ -98,7 +98,7 @@ const tables = [
                 username        text PRIMARY KEY NOT NULL,
                 token           text NOT NULL
             );
-        `)
+        `),
     },
     {
         name: 'webhooks',
