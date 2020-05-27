@@ -13,6 +13,7 @@ const server = async () => {
     const config = await createConfig();
     const { port, datasetpath } = config.server;
     log(`listening on port: ${port}`);
+    log(`datasetpath: ${datasetpath}`);
 
     await createDsetstore(datasetpath);
     app.context.dsetstore = await getDsetstore();
