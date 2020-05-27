@@ -10,7 +10,7 @@ import {
 import { get as getDsetstore } from '../context/dsetstore.js';
 import { executeWebhooks } from './webhooks.js';
 
-export const uploadDataset = async (ctx) => {
+export const uploadDataset = async (ctx, next) => {
     const busboy = new Busboy({ headers: ctx.req.headers });
     const dsetstore = await getDsetstore(ctx);
     // todo: better ways for a tmpfilename?
@@ -89,6 +89,10 @@ export const uploadDataset = async (ctx) => {
         },
     );
 
+    // return response....
+    await next();
+
+    // while processing webhooks:
     executeWebhooks(ctx);
 };
 
