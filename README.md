@@ -115,15 +115,15 @@ returns information about the webhook with id `<id>` if it is yours or you are a
 register a new webhook:
 ```json
 {
-  "on_tag": "tag",
-  "on_author": "author",
+  "onTag": "tag",
+  "onAuthor": "author",
   "url": "https://some.url/that/expects/post",
   "authenticate": true
 }
 ```
 and returns the id of the new webhook.
 
-Either `on_tag` or `on_author` may be `null`, but not both. If both are not-null, then the condition is "and"ed (i.e., the above example fires if `author` pushed a dataset with a tag `tag` but not if he/she pushed a dataset that does not contain the tag `tag` and also not if someone else pushed a dataset with the tag). There are no checks that `author` and `tag` really exists (both for privacy reasons and because the `tag` may only exist at a later point in time, namely when the data is being pushed).
+Either `onTag` or `onAuthor` may be `null`, but not both. If both are not-null, then the condition is "and"ed (i.e., the above example fires if `author` pushed a dataset with a tag `tag` but not if he/she pushed a dataset that does not contain the tag `tag` and also not if someone else pushed a dataset with the tag). There are no checks that `author` and `tag` really exists (both for privacy reasons and because the `tag` may only exist at a later point in time, namely when the data is being pushed).
 
 If `authenticate` is set to `true`, the `POST` to `url` will contain the authentication token that was used to push the dataset (and the hook can run as the user that pushed the dataset and, in particular, also push results back to datatomb). If it is set to `false`, the token will be kept private.
 
@@ -141,6 +141,13 @@ where `<hash>` is the dataset hash that can be used to retrieve the dataset itse
 ### `DELETE /webhooks/<id>`
 removes the webhook with this id (if you are the owner or admin).
 
+### `GET /webhooks/list`
+returns all ids of webhooks that are accessible to the user that are accessible to the user.
+
+### `GET /webhooks/auth`
+updates the authtoken for all existing webhooks. Needs to be done when an authtoken is invalidated and a new one should be used from now on.
+
+
 ### `GET /healthy`
 return 1 if healthy / ready for connections.
 
@@ -152,7 +159,7 @@ return 1 if healthy / ready for connections.
   - table `parentDatasets(child => datasets.hash, parent => datasets.hash)`
   - table `datasetTags(dataset => datasets.hash, tag => tags.name)`
   - table `datasets(hash primary unique, name, projectname, description, data, source => datagenerators.id)`
-  - table `webhooks(id primary, tag => tags.name, author, owner, url, authenticate)`
+  - table `webhooks(id primary, tag, author, authtoken, url, authenticate)`
 
 ## Auth server
 uses the ldap-speaking [auth server](https://gitlab.spang-lab.de/containers/auth-server) for authentification. Authentification is granted based on two groups, defined in the authserver section of the config file. If the user is in the `usergroup`, he or she may up- and download datasets and history of his or her own datasets may be queried. If he or she is also in the admin group, history of foreign datasets is accessible and datasets can be deleted.

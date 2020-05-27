@@ -8,6 +8,7 @@ import {
     getDb, addLog, getLog as getLogFromDb,
 } from '../database/index.js';
 import { get as getDsetstore } from '../context/dsetstore.js';
+import { executeWebhooks } from './webhooks.js';
 
 export const uploadDataset = async (ctx) => {
     const busboy = new Busboy({ headers: ctx.req.headers });
@@ -87,6 +88,8 @@ export const uploadDataset = async (ctx) => {
             action: 'created',
         },
     );
+
+    executeWebhooks(ctx);
 };
 
 export const getDataset = async (ctx) => {

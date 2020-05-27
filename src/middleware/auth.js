@@ -15,18 +15,12 @@ export default async (ctx, next) => {
 
     let authdata = undefined;
     try {
-        authdata = authenticate(config.authserver, authtoken);
+        authdata = await authenticate(config.authserver, authtoken);
     } catch(e) {
         ctx.throw(401, e);
     }
 
-    ctx.assert(authdata.groups,
-               502,
-               'authserver did not return groups.');
-    ctx.assert(authdata.sub,
-               502,
-               'authserver did not return user name (sub).');
-
+    console.log(authdata);
     ctx.state.authdata = authdata;
     await next();
 };
