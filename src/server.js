@@ -12,13 +12,12 @@ const server = async () => {
     const router = await getBaseRouter();
     const config = await createConfig();
     const { port, datasetpath } = config.server;
-    log(`listening on port: ${port}`);
-    log(`datasetpath: ${datasetpath}`);
 
     await createDsetstore(datasetpath);
     app.context.dsetstore = await getDsetstore();
     log(`storing datasets in ${app.context.dsetstore.path} (which is ${app.context.dsetstore.writable ? 'writable' : 'read-only'}).`);
     await createDb();
+    log('done db init.');
 
     app.use(router.routes());
     app.use(async (ctx) => {
@@ -26,7 +25,7 @@ const server = async () => {
         ctx.status = 404;
     });
 
-
+    log(`listening on port: ${port}`);
     app.listen(port);
 };
 

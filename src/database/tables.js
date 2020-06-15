@@ -90,6 +90,31 @@ const tables = [
             );
         `),
     },
+    {
+        name: 'webhookauth',
+        columns: ['username', 'token'],
+        create: (db) => db.none(`
+            CREATE TABLE webhookauth (
+                username        text PRIMARY KEY NOT NULL,
+                token           text NOT NULL
+            );
+        `),
+    },
+    {
+        name: 'webhooks',
+        columns: ['id', 'tag', 'author', 'owner', 'url', 'authenticate'],
+        create: (db) => db.none(`
+            CREATE TABLE webhooks (
+                id              SERIAL  PRIMARY KEY NOT NULL,
+                tag             text,
+                author          text,
+                owner           text NOT NULL REFERENCES webhookauth(username),
+                url             text NOT NULL,
+                authenticate    boolean NOT NULL,
+                CHECK( NOT ((tag IS NULL) AND (author IS NULL)))
+            );
+        `),
+    },
 ];
 
 
