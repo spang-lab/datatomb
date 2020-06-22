@@ -25,3 +25,4 @@ parent=$(curl \
         ${BASEURL}/upload)
 
 
+echo $parent
