@@ -89,10 +89,9 @@ export const uploadDataset = async (ctx, next) => {
         },
     );
 
-    // return response....
-    await next();
-
     // while processing webhooks:
+    log('processing any existing webhooks...');
+    // we do NOT await this, but return early.
     executeWebhooks(ctx);
 };
 
