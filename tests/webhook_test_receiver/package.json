@@ -1,0 +1,17 @@
+{
+  "name": "webhook_test_receiver",
+  "version": "0.0.1",
+  "description": "a simple webserver accepting only posts and printing the results after some delay.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa-body": "^4.2.0",
+    "nodemon": "^2.0.4"
+  },
+  "type": "module"
+}
