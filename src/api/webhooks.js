@@ -120,7 +120,6 @@ export const executeWebhooks = async (ctx) => {
 
     // finally run all matching hooks
     const success = await Promise.all(Array.from(hooks.entries()).map(async (pair) => {
-        const id = pair[0];
         const hook = pair[1];
         const thisauthdata = allauthdata.get(hook.owner);
         const readable = mayRead(db, thisauthdata, hash);
@@ -128,7 +127,7 @@ export const executeWebhooks = async (ctx) => {
             // process hook
             const hookdata = {
                 hash,
-                hook: id,
+                hook: hook.id,
             };
             const headers = { 'Content-Type': 'application/json' };
             if (hook.authenticate) {
