@@ -116,13 +116,13 @@ export const executeWebhooks = async (ctx) => {
     // add the known authdata of the author:
     const { authdata } = ctx.state;
     authdata.token = authortoken;
-    allauthdata[author] = authdata;
+    allauthdata.set(author, authdata);
 
     // finally run all matching hooks
     const success = await Promise.all(Array.from(hooks.entries()).map(async (pair) => {
         const id = pair[0];
         const hook = pair[1];
-        const thisauthdata = allauthdata[hook.owner];
+        const thisauthdata = allauthdata.get(hook.owner);
         const readable = mayRead(db, thisauthdata, hash);
         if (readable) {
             // process hook
@@ -132,7 +132,7 @@ export const executeWebhooks = async (ctx) => {
             };
             const headers = { 'Content-Type': 'application/json' };
             if (hook.authenticate) {
-                hookdata.authtoken = allauthdata[thisauthdata.token];
+                hookdata.authtoken = allauthdata.get(thisauthdata.token);
                 hookdata.Authorization = thisauthdata.token;
             }
             // send it:
