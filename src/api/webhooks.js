@@ -25,6 +25,11 @@ export const updateHookAuth = async (ctx) => {
     ctx.assert(token, 401, 'no auth token provided');
     await updateWebhookAuth(db, owner, token);
 };
+
+const isValidUrl = (url) => {
+    var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    return ( regex.test(url) );
+}
 export const registerWebhook = async (ctx) => {
     const owner = ctx.state.authdata.user;
     ctx.assert(owner, 401, 'anonymously registering an webhook is not possible.');
@@ -32,6 +37,7 @@ export const registerWebhook = async (ctx) => {
 
     const hook = ctx.request.body;
     ctx.assert(hook.url, 400, 'hook does not contain the url to post to.');
+    ctx.assert(isValidUrl(hook.url), 400, 'hook url is not valid (note: needs to be prefixed with http(s))');
     if (!hook.authenticate) {
         hook.authenticate = false;
     }
