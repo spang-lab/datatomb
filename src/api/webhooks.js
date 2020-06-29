@@ -151,7 +151,14 @@ export const executeWebhooks = async (ctx) => {
                 method: 'post',
                 body: JSON.stringify(hookdata),
                 headers,
-            }).then((res) => { if (res.ok) { return (true); } return (false); }).catch((err) => { log(`webhook ${hook.id} returned error: ${err}`); });
+            }).then((res) => {
+                if (res.ok) {
+                    return (true);
+                }
+                log(`error posting webhook ${hook.id}: fetch returned:`);
+                log(res);
+                return (false);
+            }).catch((err) => { log(`webhook ${hook.id} returned error: ${err}`); });
         }
         log(`dataset ${hash} is not readable for the (matching) hook owner ${thisauthdata.user}`);
         return false;
