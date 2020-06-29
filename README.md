@@ -135,7 +135,7 @@ If `authenticate` is set to `true`, the `POST` to `url` will contain the authent
   "authtoken": "<authtoken>"
 }
 ```
-where `<hash>` is the dataset hash that can be used to retrieve the dataset itself and all metadata associated to it, `<webhookid>` is the id that can be used to retrieve information about the hook (and to delete it given there is a authtoken -- this enables one-shot hooks). `token` will only be present (not null), if the hook has `authenticate` set to `true` and allows the receiving server to authenticate back to datatomb (e.g., to push results).
+where `<hash>` is the dataset hash that can be used to retrieve the dataset itself and all metadata associated to it, `<webhookid>` is the id that can be used to retrieve information about the hook (and to delete it given there is a authtoken -- this enables one-shot hooks). `authtoken` will only be present (not null), if the hook has `authenticate` set to `true` and allows the receiving server to authenticate back to datatomb (e.g., to push results). In this case, the authentication header `Authorization` is also set to the authtoken to enable authentication for the service providing the hook endpoint itself.
 
 
 ### `DELETE /webhooks/<id>`

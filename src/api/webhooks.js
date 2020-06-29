@@ -137,8 +137,9 @@ export const executeWebhooks = async (ctx) => {
             };
             const headers = { 'Content-Type': 'application/json' };
             if (hook.authenticate) {
-                hookdata.authtoken = allauthdata.get(thisauthdata.token);
-                hookdata.Authorization = thisauthdata.token;
+                // set the token both in the header and the body itself
+                hookdata.authtoken = thisauthdata.token;
+                headers.Authorization = thisauthdata.token;
             }
             // send it:
             return fetch(hook.url, {
