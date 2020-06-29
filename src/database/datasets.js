@@ -30,7 +30,12 @@ export const mayRead = async (db, authdata, hash) => {
         log(`admin access for ${authdata.user}`);
         return true;
     }
-    const share = await getShareState(db, hash);
+    var share = undefined;
+    try {
+        share = await getShareState(db, hash);
+    } catch(err) {
+        throw(err);
+    }
     log(`access to ${hash} is ${share}.`);
 
     if (share === 'public') {
@@ -41,7 +46,13 @@ export const mayRead = async (db, authdata, hash) => {
         }
         return false;
     } if (share === 'private') {
-        const owner = await getCreator(db, hash);
+        var owner = undefined;
+        try {
+            owner = await getCreator(db, hash);
+        } catch(err) {
+            throw(err);
+        }
+
         if (owner === authdata.user) {
             return true;
         }

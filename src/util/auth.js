@@ -21,8 +21,6 @@ export default async (authserverconfig, authtoken) => {
             headers: { 'Content-Type': 'application/json' },
         }).then((res) => res.json());
 
-        log(`user ${userdata.sub} authenticated.`);
-
         if (typeof userdata.ok !== 'undefined' && !userdata.ok) {
             if (userdata.error) {
                 throw new Error(`authserver returned: ${userdata.error}`);
@@ -30,6 +28,8 @@ export default async (authserverconfig, authtoken) => {
                 throw new Error('authserver returned generic error.');
             }
         }
+        log(`user ${userdata.sub} authenticated.`);
+
         return ({
             user: userdata.sub,
             isAdmin: isInGroup(userdata, admingroup),

@@ -128,7 +128,12 @@ export const executeWebhooks = async (ctx) => {
     const success = await Promise.all(Array.from(hooks.entries()).map(async (pair) => {
         const hook = pair[1];
         const thisauthdata = allauthdata.get(hook.owner);
-        const readable = mayRead(db, thisauthdata, hash);
+        var readable = undefined;
+        try {
+            readable = await mayRead(db, thisauthdata, hash);
+        } catch(err) {
+            return false;
+        }
         if (readable) {
             // process hook
             const hookdata = {
