@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: datatomb
-        image: gitlab.spang-lab.de:4687/containers/datatomb:0.1.9
+        image: gitlab.spang-lab.de:4687/containers/datatomb:0.1.10
         ports:
         - containerPort: 8080
           name: http

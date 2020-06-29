@@ -25,7 +25,7 @@ export default async (ctx, next) => {
             await next();
         } else {
             ctx.throw(401,
-                `user ${ctx.state.authdata} is neither owner of ${hash} nor admin.`);
+                `user ${ctx.state.authdata.user} is neither owner of ${hash} nor admin.`);
         }
     }
 };
