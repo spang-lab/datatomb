@@ -9,8 +9,8 @@ webhookid=$(curl \
     -H "Authorization: $token" \
     -d '{
         "onTag": "webhooktag",
-        "url": "http://localhost:8081/api/v1/webhookWait",
-        "authenticate": false
+        "url": "http://localhost:8081/api/v1/webhookDl",
+        "authenticate": true
       }' \
         ${BASEURL}/webhooks/register)
 echo "webhookid: $webhookid"
