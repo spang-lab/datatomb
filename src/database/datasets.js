@@ -21,14 +21,24 @@ export const getCreator = async (db, hash) => {
     }
     return db.one('SELECT who FROM log WHERE dataset = (SELECT MAX(id) FROM datasets WHERE hash = $1) AND operation = $2', [hash, 'created'], (u) => u.who);
 };
-// TODO return enum
+
+export const DatasetState = {
+    UNKNOWN: 0,
+    CREATED: 1,
+    DELETED: 2
+};
 export const getState = async (db, hash) => {
     // returns "created" or "deleted", whichever is the more recent operation on the dataset
-    if (!await metadataExists(db, hash)) {
-        throw new Error(`no dataset for hash ${hash}`);
+    const r = await db.one('SELECT operation FROM log WHERE dataset=(select MAX(id) from datasets where hash=$1) AND (operation = \'created\' OR operation = \'deleted\') ORDER BY id DESC LIMIT 1;', [hash], (c) => c.operation);
+    log(`getState: ${r}`);
+    if( r === 'created' ) {
+        return (DatasetState.CREATED);
+    } else if( r === 'deleted' ) {
+        return (DatasetState.DELETED);
+    } else {
+        return (DatasetState.UNKNOWN);
     }
-    return db.one('SELECT operation FROM log WHERE dataset=(select MAX(id) from datasets where hash=$1) AND (operation = \'created\' OR operation = \'deleted\') ORDER BY id DESC LIMIT 1;', [hash], (c) => c.operation);
-}
+};
 
 export const getShareState = async (db, hash) => {
     if (!await exists(db, hash)) {
