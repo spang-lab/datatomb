@@ -236,3 +236,37 @@ export const getLog = async (ctx) => {
     const logdata = await getLogFromDb(db, hash);
     ctx.body = JSON.stringify(logdata);
 };
+
+export const checkDataset = async (ctx) => {
+    log(`checking file consistency for hash = ${ctx.params.hash}`);
+    const { hash } = ctx.params;
+    const dsetstore = await getDsetstore(ctx);
+    const filename = [dsetstore.path, hash].join('/');
+    const fexists = await fs.exists(filename);
+    if( ! fexists ) {
+        ctx.body = JSON.stringify(
+            {
+                ok: false,
+                expected: hash,
+                actual: "file does not exist"
+            }
+        );
+    } else {
+        const actualhash = await hashFile(filename);
+        if( actualhash === hash ) {
+            ctx.body = JSON.stringify(
+                {
+                    ok: true,
+                    expected: hash,
+                    actual: hash
+                });
+        } else {
+            ctx.body = JSON.stringify(
+                {
+                    ok: false,
+                    expected: hash,
+                    actual: actualhash
+                });
+        }
+    }
+};

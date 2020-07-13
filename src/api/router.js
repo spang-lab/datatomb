@@ -3,7 +3,7 @@ import koaBody from 'koa-body';
 import search from './search.js';
 import { get as getMetadata } from './metadata.js';
 import {
-    uploadDataset, getDataset, rmDataset, getLog, shredDataset
+    uploadDataset, getDataset, rmDataset, getLog, shredDataset, checkDataset
 } from './dataset.js';
 import {
     registerWebhook,
@@ -40,7 +40,9 @@ const getApiRouter = async () => {
     apirouter.get('/webhooks/auth', isUser, async (ctx) => { await updateHookAuth(ctx); });
     apirouter.get('/webhooks/:id', isWebhookOwnerOrAdmin, async (ctx) => { await getWebhook(ctx); });
     apirouter.del('/webhooks/:id', isWebhookOwnerOrAdmin, async (ctx) => { await deleteWebhook(ctx); });
+    apirouter.get('/admin/orphans', isAdmin, async (ctx) => { await listOrphans(ctx); });
     apirouter.post('/admin/shred/:hash', isAdmin, async (ctx) => { await shredDataset(ctx); });
+    apirouter.get('/admin/check/:hash', isAdmin, async (ctx) => { await checkDataset(ctx); });
     apirouter.get('/:hash', hashExists, mayRead, async (ctx) => { await getDataset(ctx); });
     apirouter.del('/:hash', hashExists, isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
     return apirouter;

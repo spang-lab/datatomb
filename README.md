@@ -138,21 +138,27 @@ If `authenticate` is set to `true`, the `POST` to `url` will contain the authent
 where `<hash>` is the dataset hash that can be used to retrieve the dataset itself and all metadata associated to it, `<webhookid>` is the id that can be used to retrieve information about the hook (and to delete it given there is a authtoken -- this enables one-shot hooks). `authtoken` will only be present (not null), if the hook has `authenticate` set to `true` and allows the receiving server to authenticate back to datatomb (e.g., to push results). In this case, the authentication header `Authorization` is also set to the authtoken to enable authentication for the service providing the hook endpoint itself.
 
 
-### `DELETE /webhooks/<id>`
+#### `DELETE /webhooks/<id>`
 removes the webhook with this id (if you are the owner or admin).
 
-### `GET /webhooks/list`
+#### `GET /webhooks/list`
 returns all ids of webhooks that are accessible to the user that are accessible to the user.
 
-### `GET /webhooks/auth`
+#### `GET /webhooks/auth`
 updates the authtoken for all existing webhooks. Needs to be done when an authtoken is invalidated and a new one should be used from now on.
 
 ### Administrative tasks
 special end points that need admin permissions.
 
+#### `GET /admin/orphans`
+returns a list of orphaned datasets, i.e., datasets that exist in the database and were not deleted but don't exist as a file.
 
 #### `POST /admin/shred/<hash>`
 delete all hints to a dataset (other than delete this also removes all metadata and log entries, but not tags)
+
+#### `GET /admin/check/<hash>`
+check if the dataset stored as `<hash>` still has the same checksum (may be important after storage instabilities).
+
 
 ### `GET /healthy`
 return 1 if healthy / ready for connections.
