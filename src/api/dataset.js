@@ -5,7 +5,7 @@ import Busboy from 'busboy';
 import { log } from '../util/index.js';
 import { add as addMetadata, shred as shredMetadata } from './metadata.js';
 import {
-    getDb, addLog, getLog as getLogFromDb,
+    getDb, addLog, getLog as getLogFromDb, allNonDeletedDatasets
 } from '../database/index.js';
 import { get as getDsetstore } from '../context/dsetstore.js';
 import { executeWebhooks } from './webhooks.js';
@@ -269,4 +269,21 @@ export const checkDataset = async (ctx) => {
                 });
         }
     }
+};
+
+export const listOrphans = async (ctx) => {
+    const db = getDb();
+    const dsets = await allNonDeletedDatasets(db);
+    log('return all nondel');
+    const dsetstore = await getDsetstore(ctx);
+    const exists = await Promise.all(dsets.map(hash =>
+                                               {
+                                                   const filename = [dsetstore.path, hash].join('/');
+                                                   return (fs.exists(filename));
+                                               }));
+    const orphans = dsets.filter((hash, index) => {
+        return (! exists[index]);
+    });
+
+    ctx.body = JSON.stringify(orphans);
 };

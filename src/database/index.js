@@ -8,6 +8,7 @@ export {
     mayRead,
     shredMetadata,
     add as addDatasetToDb,
+    allNonDeletedDatasets
 } from './datasets.js';
 export {
     getOwner as getWebhookOwner,
