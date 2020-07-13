@@ -141,3 +141,18 @@ export const get = async (db, hash) => {
         });
     return metadata;
 };
+
+export const shredMetadata = async (db, hash) => {
+    // delete log:
+    log('shredMetadata in database...');
+    const logdel = db.none('DELETE FROM log WHERE dataset IN (SELECT id FROM datasets WHERE hash = $1)', [hash]);
+    // delete all tag associations:
+    const tagdel = db.none('DELETE FROM datasettags WHERE dataset IN (SELECT id FROM datasets WHERE hash = $1)', [hash]);
+    // delete all parent-child relations:
+    const parentdel = db.none('DELETE FROM parentdatasets WHERE child IN (SELECT id FROM datasets WHERE hash = $1) OR parent IN (SELECT id FROM datasets WHERE hash = $1)', [hash]);
+
+    await Promise.all([logdel, tagdel, parentdel]);
+
+    // delete the dataset itself:
+    db.none('DELETE FROM datasets WHERE hash = $1;', [hash]);
+};

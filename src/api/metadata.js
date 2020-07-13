@@ -1,6 +1,6 @@
 import { log } from '../util/index.js';
 import {
-    datasetExists, getDb, getMetadata, addDatasetToDb,
+    datasetExists, getDb, getMetadata, addDatasetToDb, shredMetadata
 } from '../database/index.js';
 
 export const add = async (ctx) => {
@@ -22,4 +22,9 @@ export const get = async (ctx) => {
     const db = getDb();
     const metadata = await getMetadata(db, hash);
     ctx.body = JSON.stringify(metadata);
+};
+export const shred = async (ctx) => {
+    const { hash } = ctx.params;
+    const db = getDb();
+    shredMetadata(db, hash);
 };

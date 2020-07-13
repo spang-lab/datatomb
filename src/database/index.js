@@ -6,6 +6,7 @@ export {
     getCreator,
     getShareState,
     mayRead,
+    shredMetadata,
     add as addDatasetToDb,
 } from './datasets.js';
 export {

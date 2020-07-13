@@ -147,6 +147,12 @@ returns all ids of webhooks that are accessible to the user that are accessible 
 ### `GET /webhooks/auth`
 updates the authtoken for all existing webhooks. Needs to be done when an authtoken is invalidated and a new one should be used from now on.
 
+### Administrative tasks
+special end points that need admin permissions.
+
+
+#### `POST /admin/shred/<hash>`
+delete all hints to a dataset (other than delete this also removes all metadata and log entries, but not tags)
 
 ### `GET /healthy`
 return 1 if healthy / ready for connections.

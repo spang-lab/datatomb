@@ -3,7 +3,7 @@ import send from 'koa-send';
 import sha256 from 'js-sha256';
 import Busboy from 'busboy';
 import { log } from '../util/index.js';
-import { add as addMetadata } from './metadata.js';
+import { add as addMetadata, shred as shredMetadata } from './metadata.js';
 import {
     getDb, addLog, getLog as getLogFromDb,
 } from '../database/index.js';
@@ -191,6 +191,41 @@ export const rmDataset = async (ctx) => {
             hash,
             algo: 'sha256sum',
             action: 'deleted',
+        },
+    );
+};
+export const shredDataset = async (ctx) => {
+    const { hash } = ctx.params;
+    log(`shredding dataset for hash = ${hash}`);
+    try {
+        await shredMetadata(ctx);
+        log(`done shredding metadata`);
+    } catch (e) {
+        ctx.throw(500,
+            `couldn't shred metadata of hash ${hash}: ${e.message}`);
+    }
+
+    try {
+        const dsetstore = await getDsetstore(ctx);
+        if (!dsetstore.writable) {
+            throw (new Error('dataset store is not writable.'));
+        }
+        const filename = [dsetstore.path, hash].join('/');
+        if (!await fs.exists(filename)) {
+            log('dataset does not exist on disk. only removing metadata.');
+        } else {
+            await fs.remove(filename);
+        }
+    } catch (e) {
+        ctx.throw(500,
+            `cannot remove the file: ${e.message}`);
+    }
+
+    ctx.body = JSON.stringify(
+        {
+            hash,
+            algo: 'sha256sum',
+            action: 'shredded',
         },
     );
 };
