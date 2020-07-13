@@ -5,7 +5,7 @@ import Busboy from 'busboy';
 import { log } from '../util/index.js';
 import { add as addMetadata, shred as shredMetadata } from './metadata.js';
 import {
-    getDb, addLog, getLog as getLogFromDb, allNonDeletedDatasets
+    getDb, addLog, getLog as getLogFromDb, allNonDeletedDatasets, getDatasetState, DatasetState
 } from '../database/index.js';
 import { get as getDsetstore } from '../context/dsetstore.js';
 import { executeWebhooks } from './webhooks.js';
@@ -86,8 +86,13 @@ export const uploadDataset = async (ctx, next) => {
         ctx.req.pipe(busboy);
     });
 
+    const db = getDb();
     const finalfilename = [dsetstore.path, hashrep].join('/');
-    const fexists = await fs.exists(finalfilename);
+    const [dsetstate, fexists] = await Promise.all([getDatasetState(db, hashrep), fs.exists(finalfilename)]);
+
+    if( dsetstate === DatasetState.CREATED ) {
+        ctx.throw(400, 'file is already a dataset.');
+    }
 
     if( havefile && !fexists ) {
         // file has been uploaded and doesn't yet exist in the dsetstore
@@ -120,7 +125,6 @@ export const uploadDataset = async (ctx, next) => {
         }
         throw e;
     }
-    const db = getDb();
     const { user } = ctx.state.authdata;
     await addLog(db, hashrep, user, 'created');
 
