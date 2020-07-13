@@ -10,6 +10,23 @@ import {
 import { get as getDsetstore } from '../context/dsetstore.js';
 import { executeWebhooks } from './webhooks.js';
 
+const hashFile = async (filename) => {
+    const hash = sha256.create();
+    return new Promise((resolve, reject) => {
+        let readStream = fs.createReadStream(filename);
+        readStream.on('error', err => {
+            reject(err);
+        });
+        readStream.on('data', chunk => {
+            hash.update(chunk);
+        });
+        readStream.on('close', () => {
+            // Create a buffer of the image from the stream
+            resolve(hash.hex());
+        });
+    });
+}
+
 export const uploadDataset = async (ctx, next) => {
     const busboy = new Busboy({ headers: ctx.req.headers });
     const dsetstore = await getDsetstore(ctx);
@@ -20,8 +37,9 @@ export const uploadDataset = async (ctx, next) => {
     const tmpfilename = [dsetstore.path, (Math.random() * 0xFFFFFFFFFFFFFF).toString(20)].join('/');
     log(`storing to tmpfile: ${tmpfilename}`);
 
-    const [hashrep, metadata] = await new Promise((resolve, reject) => {
+    const [hashrep, metadata, havefile] = await new Promise((resolve, reject) => {
         const hash = sha256.create();
+        var submittedHash = undefined;
         let havefile = false;
         let meta = null;
         busboy.on('file', (fieldname, file) => {
@@ -44,29 +62,52 @@ export const uploadDataset = async (ctx, next) => {
         });
         busboy.on('field', (fieldname, val) => {
             log(`receiving field: ${fieldname}`);
-            if (fieldname !== 'data') {
+            if (fieldname === 'data') {
+                meta = JSON.parse(val);
+            } else if( fieldname === 'hash'){
+                submittedHash = val;
+            } else {
                 reject(new Error('apart from the "file", only one other fieldname, "data" is allowed.'));
             }
-            meta = JSON.parse(val);
         });
         busboy.on('finish', () => {
             log('finish upload.');
-            if (!havefile || !meta) {
+            var hashres = undefined;
+            if( submittedHash ) {
+                hashres = submittedHash;
+            } else {
+                hashres = hash.hex();
+            }
+            if (!( havefile || submittedHash ) || !meta) {
                 reject(new Error('incomplete upload (either file or metadata is missing)'));
             }
-            resolve([hash.hex(), meta]);
+            resolve([hashres, meta, havefile]);
         });
         ctx.req.pipe(busboy);
     });
 
     const finalfilename = [dsetstore.path, hashrep].join('/');
-    if (await fs.exists(finalfilename)) {
+    const fexists = await fs.exists(finalfilename);
+
+    if( havefile && !fexists ) {
+        // file has been uploaded and doesn't yet exist in the dsetstore
+        // (normal behaviour)
+        // move tmpfile to its final destination (hash):
+        await fs.rename(tmpfilename, finalfilename, (err) => { if (err) { throw err; } });
+    } else if( !havefile && !fexists) {
+        // NO file has been uploaded, but a hash was provided, but it  doesn't exist in the store.
+        ctx.throw(400, 'file not submitted but it doesn\' exist, yet.');
+    } else if( !havefile && fexists ){
+        // file hasn't been uploaded but it exists (normal behaviour)
+        // check that hash matches the file
+        const actualhash = await hashFile(finalfilename);
+        log(`checking hash ${actualhash}`);
+        ctx.assert(actualhash === hashrep, 400, `file exists with name ${hashrep} exists but its actual hash is different: ${actualhash}.`);
+    } else {
+        // file has been uploaded but already exists.
         await fs.remove(tmpfilename);
         ctx.throw(400, 'file already exists. cannot upload twice.');
     }
-
-    // move tmpfile to its final destination (hash):
-    await fs.rename(tmpfilename, finalfilename, (err) => { if (err) { throw err; } });
 
     // add metadata for this file:
     ctx.state.hash = hashrep;
@@ -74,7 +115,9 @@ export const uploadDataset = async (ctx, next) => {
     try {
         await addMetadata(ctx);
     } catch (e) {
-        await fs.remove(finalfilename);
+        if( havefile ) {
+            await fs.remove(finalfilename);
+        }
         throw e;
     }
     const db = getDb();
