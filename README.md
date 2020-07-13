@@ -108,10 +108,12 @@ If you are the owner of a dataset or admin, you may remove your published data s
 ### `GET /auth`
 returns user name and other authdata if a valid token was provided. Note that there is no need to call this endpoint, it is just for checking authentication and getting user permissions (user, admin, etc)
 
-### `GET /webhooks/<id>`
+
+### webhooks
+#### `GET /webhooks/<id>`
 returns information about the webhook with id `<id>` if it is yours or you are admin.
 
-### `POST /webhooks/register`
+#### `POST /webhooks/register`
 register a new webhook:
 ```json
 {
