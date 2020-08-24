@@ -36,11 +36,30 @@ const downloadDset = async(hash, auth) => {
         return (fetch(datatomburl+'/'+hash));
     }
 };
+const getDsetName = async(hash, auth) => {
+    var res = undefined;
+    if( auth ) {
+        res = await fetch(datatomburl+'/meta/'+hash,
+                       {
+                           method: 'get',
+                           headers: { 'Authorization': auth },
+                       })
+            .then(response => response.json() );
+    }
+    else {
+        res = await fetch(datatomburl+'/meta/'+hash)
+            .then(response => response.json() );
+    }
+    return res.name;
+};
 const postWebhookDownload = async(ctx) => {
     console.log('received post:');
     console.log(ctx.request.body);
+    const dsetname = await getDsetName(ctx.request.body.hash, ctx.request.body.authtoken);
+    console.log(`dataset name: ${dsetname}`);
     const result = await downloadDset(ctx.request.body.hash, ctx.request.body.authtoken);
     ctx.assert(result, 500, 'could not download dset.');
+    ctx.assert(result.status == 200, 500, `could not download dset: returned status ${result.status}`);
     console.log(result);
     ctx.body = result;
 };

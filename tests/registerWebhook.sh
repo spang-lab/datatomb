@@ -3,6 +3,8 @@ source ./creds.src
 
 #"url": "https://httpbin.org/post",
 
+#"url": "http://pc1011800780.ur.de:8000/gene_expression",
+
 echo token=$token
 webhookid=$(curl \
     -H 'content-type: application/json' \
@@ -10,7 +12,7 @@ webhookid=$(curl \
     -d '{
         "onTag": "webhooktag",
         "url": "http://localhost:8081/api/v1/webhookDl",
-        "authenticate": true
+        "authenticate": false
       }' \
         ${BASEURL}/webhooks/register)
 echo "webhookid: $webhookid"
