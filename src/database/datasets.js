@@ -29,8 +29,13 @@ export const DatasetState = {
 };
 export const getState = async (db, hash) => {
     // returns "created" or "deleted", whichever is the more recent operation on the dataset
-    const r = await db.one('SELECT operation FROM log WHERE dataset=(select MAX(id) from datasets where hash=$1) AND (operation = \'created\' OR operation = \'deleted\') ORDER BY id DESC LIMIT 1;', [hash], (c) => c.operation);
-    log(`getState: ${r}`);
+    const r = await db.oneOrNone('SELECT operation FROM log WHERE dataset=(select MAX(id) from datasets where hash=$1) AND (operation = \'created\' OR operation = \'deleted\') ORDER BY id DESC LIMIT 1;', [hash], (c) => {
+        if ( ! c ){
+            return('unknown');
+        } else {
+            return(c.operation);
+        }
+    });
     if( r === 'created' ) {
         return (DatasetState.CREATED);
     } else if( r === 'deleted' ) {
