@@ -15,11 +15,13 @@ export default async (authserverconfig, authtoken) => {
         const { url, usergroup, admingroup } = authserverconfig;
 
         log(`contacting authserver ${url}`);
-        const userdata = await fetch(url, {
+        const userdataPromise = fetch(url, {
             method: 'post',
             body: JSON.stringify({ token: authtoken }),
             headers: { 'Content-Type': 'application/json' },
         }).then((res) => res.json());
+
+        const userdata = await userdataPromise;
 
         if (typeof userdata.ok !== 'undefined' && !userdata.ok) {
             if (userdata.error) {
@@ -28,6 +30,7 @@ export default async (authserverconfig, authtoken) => {
                 throw new Error('authserver returned generic error.');
             }
         }
+
         log(`user ${userdata.sub} authenticated.`);
 
         return ({

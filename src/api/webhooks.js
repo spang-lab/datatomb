@@ -105,6 +105,7 @@ export const executeWebhooks = async (ctx) => {
 
     const hooks = await Promise.all(hookids.map((id) => getWebhookFromDb(db, id)));
 
+
     // get all hookowners for authentication
     let hookowners = new Set(hooks.map((hook) => (hook.owner)));
     // remove author from the set (we have the authdata already)
@@ -115,9 +116,15 @@ export const executeWebhooks = async (ctx) => {
     const allauthdata = new Map(
         await Promise.all(hookowners.map(async (uname) => {
             const token = await getWebhookUserToken(db, uname);
-            const authdata = await authenticate(config.authserver, token);
-            authdata.token = token;
-            return ([uname, authdata]);
+            console.log(token);
+            try {
+                const authdata = await authenticate(config.authserver, token);
+                authdata.token = token;
+                return ([uname, authdata]);
+            } catch( exc ) {
+                log(`error authenticating ${uname}: ${exc}`);
+                return ([uname, undefined]);
+            }
         })),
     );
     // add the known authdata of the author:

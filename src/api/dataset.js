@@ -78,7 +78,7 @@ export const uploadDataset = async (ctx) => {
             } else {
                 hashres = hash.hex();
             }
-            if (!(havefile || submittedHash) || !meta) {
+            if (!(haveFileP || submittedHash) || !meta) {
                 reject(new Error('incomplete upload (either file or metadata is missing)'));
             }
             resolve([hashres, meta, haveFileP]);
