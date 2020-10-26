@@ -10,7 +10,8 @@ export {
     add as addDatasetToDb,
     allNonDeletedDatasets,
     DatasetState,
-    getState as getDatasetState
+    getState as getDatasetState,
+    hashesLike
 } from './datasets.js';
 export {
     getOwner as getWebhookOwner,

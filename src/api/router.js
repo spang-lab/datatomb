@@ -21,6 +21,7 @@ import {
     isOwnerOrAdmin,
     mayRead,
     hashExists,
+    resolveIdentifier,
     isWebhookOwnerOrAdmin,
 } from '../middleware/index.js';
 
@@ -30,21 +31,21 @@ const getApiRouter = async () => {
     apirouter.use(apiTransaction);
     apirouter.use(apiAuth);
     apirouter.get('/meta/search', isUser, async (ctx) => { await search(ctx); });
-    apirouter.get('/meta/:hash', hashExists, mayRead, async (ctx) => { await getMetadata(ctx); });
+    apirouter.get('/meta/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { await getMetadata(ctx); });
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.post('/upload', isUser, async (ctx, next) => { await uploadDataset(ctx, next); });
     apirouter.get('/auth', (ctx) => { ctx.body = ctx.state.authdata; });
-    apirouter.get('/log/:hash', isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
+    apirouter.get('/log/:dsetid', resolveIdentifier, isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
     apirouter.post('/webhooks/register', isUser, koaBody(), async (ctx) => { await registerWebhook(ctx); });
     apirouter.get('/webhooks/list', isUser, async (ctx) => { await listWebhooks(ctx); });
     apirouter.get('/webhooks/auth', isUser, async (ctx) => { await updateHookAuth(ctx); });
     apirouter.get('/webhooks/:id', isWebhookOwnerOrAdmin, async (ctx) => { await getWebhook(ctx); });
     apirouter.del('/webhooks/:id', isWebhookOwnerOrAdmin, async (ctx) => { await deleteWebhook(ctx); });
     apirouter.get('/admin/orphans', isAdmin, async (ctx) => { await listOrphans(ctx); });
-    apirouter.post('/admin/shred/:hash', isAdmin, async (ctx) => { await shredDataset(ctx); });
-    apirouter.get('/admin/check/:hash', isAdmin, async (ctx) => { await checkDataset(ctx); });
-    apirouter.get('/:hash', hashExists, mayRead, async (ctx) => { await getDataset(ctx); });
-    apirouter.del('/:hash', hashExists, isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
+    apirouter.post('/admin/shred/:dsetid', resolveIdentifier, isAdmin, async (ctx) => { await shredDataset(ctx); });
+    apirouter.get('/admin/check/:dsetid', resolveIdentifier, isAdmin, async (ctx) => { await checkDataset(ctx); });
+    apirouter.get('/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { await getDataset(ctx); });
+    apirouter.del('/:dsetid', resolveIdentifier, hashExists, isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
     return apirouter;
 };
 

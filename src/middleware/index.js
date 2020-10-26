@@ -6,4 +6,5 @@ export { default as isAdmin } from './isAdmin.js';
 export { default as isOwnerOrAdmin } from './isOwnerOrAdmin.js';
 export { default as mayRead } from './mayRead.js';
 export { default as hashExists } from './hashExists.js';
+export { default as resolveIdentifier } from './resolveIdentifier.js';
 export { default as isWebhookOwnerOrAdmin } from './isWebhookOwnerOrAdmin.js';

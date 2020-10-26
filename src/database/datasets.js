@@ -10,6 +10,10 @@ export const exists = async (ctx, hash) => {
     const mdata = metadataExists(db, hash);
     return (await mdata) && (datasetFileExists(ctx, hash));
 };
+export const hashesLike = async(db, id) => {
+    // returns all hashes that have `id` as a substring
+    return db.map('SELECT DISTINCT(hash) FROM datasets WHERE hash LIKE $1', ['%'+id+'%'], (m) => m.hash);
+};
 
 export const allNonDeletedDatasets = async (db) => {
     return db.map('SELECT DISTINCT(hash) FROM datasets where id in (SELECT DISTINCT(dataset) FROM log WHERE operation != \'deleted\');', [], (h) => h.hash );
