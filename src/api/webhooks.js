@@ -27,9 +27,10 @@ export const updateHookAuth = async (ctx) => {
 };
 
 const isValidUrl = (url) => {
-    var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-    return ( regex.test(url) );
-}
+    // eslint-disable-next-line
+    const regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    return (regex.test(url));
+};
 export const registerWebhook = async (ctx) => {
     const owner = ctx.state.authdata.user;
     ctx.assert(owner, 401, 'anonymously registering an webhook is not possible.');
@@ -128,10 +129,10 @@ export const executeWebhooks = async (ctx) => {
     const success = await Promise.all(Array.from(hooks.entries()).map(async (pair) => {
         const hook = pair[1];
         const thisauthdata = allauthdata.get(hook.owner);
-        var readable = undefined;
+        let readable;
         try {
             readable = await mayRead(db, thisauthdata, hash);
-        } catch(err) {
+        } catch (err) {
             return false;
         }
         if (readable) {

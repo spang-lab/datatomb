@@ -10,14 +10,10 @@ export const exists = async (ctx, hash) => {
     const mdata = metadataExists(db, hash);
     return (await mdata) && (datasetFileExists(ctx, hash));
 };
-export const hashesLike = async(db, id) => {
-    // returns all hashes that have `id` as a substring
-    return db.map('SELECT DISTINCT(hash) FROM datasets WHERE hash LIKE $1', ['%'+id+'%'], (m) => m.hash);
-};
+// returns all hashes that have `id` as a substring
+export const hashesLike = async (db, id) => db.map('SELECT DISTINCT(hash) FROM datasets WHERE hash LIKE $1', [`%${id}%`], (m) => m.hash);
 
-export const allNonDeletedDatasets = async (db) => {
-    return db.map('SELECT DISTINCT(hash) FROM datasets where id in (SELECT DISTINCT(dataset) FROM log WHERE operation != \'deleted\');', [], (h) => h.hash );
-};
+export const allNonDeletedDatasets = async (db) => db.map('SELECT DISTINCT(hash) FROM datasets where id in (SELECT DISTINCT(dataset) FROM log WHERE operation != \'deleted\');', [], (h) => h.hash);
 
 export const getCreator = async (db, hash) => {
     if (!await exists(db, hash)) {
@@ -29,24 +25,22 @@ export const getCreator = async (db, hash) => {
 export const DatasetState = {
     UNKNOWN: 0,
     CREATED: 1,
-    DELETED: 2
+    DELETED: 2,
 };
 export const getState = async (db, hash) => {
     // returns "created" or "deleted", whichever is the more recent operation on the dataset
     const r = await db.oneOrNone('SELECT operation FROM log WHERE dataset=(select MAX(id) from datasets where hash=$1) AND (operation = \'created\' OR operation = \'deleted\') ORDER BY id DESC LIMIT 1;', [hash], (c) => {
-        if ( ! c ){
-            return('unknown');
-        } else {
-            return(c.operation);
+        if (!c) {
+            return ('unknown');
         }
+        return (c.operation);
     });
-    if( r === 'created' ) {
+    if (r === 'created') {
         return (DatasetState.CREATED);
-    } else if( r === 'deleted' ) {
+    } if (r === 'deleted') {
         return (DatasetState.DELETED);
-    } else {
-        return (DatasetState.UNKNOWN);
     }
+    return (DatasetState.UNKNOWN);
 };
 
 export const getShareState = async (db, hash) => {
@@ -61,12 +55,8 @@ export const mayRead = async (db, authdata, hash) => {
         log(`admin access for ${authdata.user}`);
         return true;
     }
-    var share = undefined;
-    try {
-        share = await getShareState(db, hash);
-    } catch(err) {
-        throw(err);
-    }
+    const share = await getShareState(db, hash);
+
     log(`access to ${hash} is ${share}.`);
 
     if (share === 'public') {
@@ -77,12 +67,7 @@ export const mayRead = async (db, authdata, hash) => {
         }
         return false;
     } if (share === 'private') {
-        var owner = undefined;
-        try {
-            owner = await getCreator(db, hash);
-        } catch(err) {
-            throw(err);
-        }
+        const owner = await getCreator(db, hash);
 
         if (owner === authdata.user) {
             return true;

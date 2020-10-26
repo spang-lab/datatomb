@@ -5,7 +5,7 @@ import Busboy from 'busboy';
 import { log } from '../util/index.js';
 import { add as addMetadata, shred as shredMetadata } from './metadata.js';
 import {
-    getDb, addLog, getLog as getLogFromDb, allNonDeletedDatasets, getDatasetState, DatasetState
+    getDb, addLog, getLog as getLogFromDb, allNonDeletedDatasets, getDatasetState, DatasetState,
 } from '../database/index.js';
 import { get as getDsetstore } from '../context/dsetstore.js';
 import { executeWebhooks } from './webhooks.js';
@@ -13,11 +13,11 @@ import { executeWebhooks } from './webhooks.js';
 const hashFile = async (filename) => {
     const hash = sha256.create();
     return new Promise((resolve, reject) => {
-        let readStream = fs.createReadStream(filename);
-        readStream.on('error', err => {
+        const readStream = fs.createReadStream(filename);
+        readStream.on('error', (err) => {
             reject(err);
         });
-        readStream.on('data', chunk => {
+        readStream.on('data', (chunk) => {
             hash.update(chunk);
         });
         readStream.on('close', () => {
@@ -25,9 +25,9 @@ const hashFile = async (filename) => {
             resolve(hash.hex());
         });
     });
-}
+};
 
-export const uploadDataset = async (ctx, next) => {
+export const uploadDataset = async (ctx) => {
     const busboy = new Busboy({ headers: ctx.req.headers });
     const dsetstore = await getDsetstore(ctx);
     // todo: better ways for a tmpfilename?
@@ -39,8 +39,8 @@ export const uploadDataset = async (ctx, next) => {
 
     const [hashrep, metadata, havefile] = await new Promise((resolve, reject) => {
         const hash = sha256.create();
-        var submittedHash = undefined;
-        let havefile = false;
+        let submittedHash;
+        let haveFileP = false;
         let meta = null;
         busboy.on('file', (fieldname, file) => {
             log(`receiving file: ${fieldname}`);
@@ -48,7 +48,7 @@ export const uploadDataset = async (ctx, next) => {
                 reject(new Error('only fieldnames with called "file" may contain file upload data.'));
             }
 
-            havefile = true;
+            haveFileP = true;
             // write data to disk
             log('File upload started');
             file.pipe(fs.createWriteStream(tmpfilename));
@@ -64,7 +64,7 @@ export const uploadDataset = async (ctx, next) => {
             log(`receiving field: ${fieldname}`);
             if (fieldname === 'data') {
                 meta = JSON.parse(val);
-            } else if( fieldname === 'hash'){
+            } else if (fieldname === 'hash') {
                 submittedHash = val;
             } else {
                 reject(new Error('apart from the "file", only one other fieldname, "data" is allowed.'));
@@ -72,37 +72,39 @@ export const uploadDataset = async (ctx, next) => {
         });
         busboy.on('finish', () => {
             log('finish upload.');
-            var hashres = undefined;
-            if( submittedHash ) {
+            let hashres;
+            if (submittedHash) {
                 hashres = submittedHash;
             } else {
                 hashres = hash.hex();
             }
-            if (!( havefile || submittedHash ) || !meta) {
+            if (!(havefile || submittedHash) || !meta) {
                 reject(new Error('incomplete upload (either file or metadata is missing)'));
             }
-            resolve([hashres, meta, havefile]);
+            resolve([hashres, meta, haveFileP]);
         });
         ctx.req.pipe(busboy);
     });
 
     const db = getDb();
     const finalfilename = [dsetstore.path, hashrep].join('/');
-    const [dsetstate, fexists] = await Promise.all([getDatasetState(db, hashrep), fs.exists(finalfilename)]);
+    const [dsetstate, fexists] = await Promise.all(
+        [getDatasetState(db, hashrep), fs.exists(finalfilename)],
+    );
 
-    if( dsetstate === DatasetState.CREATED ) {
+    if (dsetstate === DatasetState.CREATED) {
         ctx.throw(400, 'file is already a dataset.');
     }
 
-    if( havefile && !fexists ) {
+    if (havefile && !fexists) {
         // file has been uploaded and doesn't yet exist in the dsetstore
         // (normal behaviour)
         // move tmpfile to its final destination (hash):
         await fs.rename(tmpfilename, finalfilename, (err) => { if (err) { throw err; } });
-    } else if( !havefile && !fexists) {
+    } else if (!havefile && !fexists) {
         // NO file has been uploaded, but a hash was provided, but it  doesn't exist in the store.
         ctx.throw(400, 'file not submitted but it doesn\' exist, yet.');
-    } else if( !havefile && fexists ){
+    } else if (!havefile && fexists) {
         // file hasn't been uploaded but it exists (normal behaviour)
         // check that hash matches the file
         const actualhash = await hashFile(finalfilename);
@@ -120,7 +122,7 @@ export const uploadDataset = async (ctx, next) => {
     try {
         await addMetadata(ctx);
     } catch (e) {
-        if( havefile ) {
+        if (havefile) {
             await fs.remove(finalfilename);
         }
         throw e;
@@ -203,7 +205,7 @@ export const shredDataset = async (ctx) => {
     log(`shredding dataset for hash = ${hash}`);
     try {
         await shredMetadata(ctx);
-        log(`done shredding metadata`);
+        log('done shredding metadata');
     } catch (e) {
         ctx.throw(500,
             `couldn't shred metadata of hash ${hash}: ${e.message}`);
@@ -247,30 +249,32 @@ export const checkDataset = async (ctx) => {
     const dsetstore = await getDsetstore(ctx);
     const filename = [dsetstore.path, hash].join('/');
     const fexists = await fs.exists(filename);
-    if( ! fexists ) {
+    if (!fexists) {
         ctx.body = JSON.stringify(
             {
                 ok: false,
                 expected: hash,
-                actual: "file does not exist"
-            }
+                actual: 'file does not exist',
+            },
         );
     } else {
         const actualhash = await hashFile(filename);
-        if( actualhash === hash ) {
+        if (actualhash === hash) {
             ctx.body = JSON.stringify(
                 {
                     ok: true,
                     expected: hash,
-                    actual: hash
-                });
+                    actual: hash,
+                },
+            );
         } else {
             ctx.body = JSON.stringify(
                 {
                     ok: false,
                     expected: hash,
-                    actual: actualhash
-                });
+                    actual: actualhash,
+                },
+            );
         }
     }
 };
@@ -280,14 +284,11 @@ export const listOrphans = async (ctx) => {
     const dsets = await allNonDeletedDatasets(db);
     log('return all nondel');
     const dsetstore = await getDsetstore(ctx);
-    const exists = await Promise.all(dsets.map(hash =>
-                                               {
-                                                   const filename = [dsetstore.path, hash].join('/');
-                                                   return (fs.exists(filename));
-                                               }));
-    const orphans = dsets.filter((hash, index) => {
-        return (! exists[index]);
-    });
+    const exists = await Promise.all(dsets.map((hash) => {
+        const filename = [dsetstore.path, hash].join('/');
+        return (fs.exists(filename));
+    }));
+    const orphans = dsets.filter((hash, index) => (!exists[index]));
 
     ctx.body = JSON.stringify(orphans);
 };

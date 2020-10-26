@@ -1,6 +1,6 @@
 import { log } from '../util/index.js';
 import {
-    datasetExists, getDb, getMetadata, addDatasetToDb, shredMetadata
+    datasetExists, getDb, getMetadata, addDatasetToDb, shredMetadata,
 } from '../database/index.js';
 
 export const add = async (ctx) => {

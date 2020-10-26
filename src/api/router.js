@@ -3,7 +3,7 @@ import koaBody from 'koa-body';
 import search from './search.js';
 import { get as getMetadata } from './metadata.js';
 import {
-    uploadDataset, getDataset, rmDataset, getLog, shredDataset, checkDataset, listOrphans
+    uploadDataset, getDataset, rmDataset, getLog, shredDataset, checkDataset, listOrphans,
 } from './dataset.js';
 import {
     registerWebhook,
