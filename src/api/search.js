@@ -57,7 +57,13 @@ const intersection = (arrOfSets) => {
     return intersection(arrOfSets.concat(pairwiseIntersection(secondToLast, last)));
 };
 const processQueries = async (db, queries) => {
-    const allqueries = Object.keys(queries).map((key) => query(db, key, queries[key]));
+    // if there are multiple queries with the same key, we need to replicate the key...
+    // this may not be particularly elegant:
+    let allqueries = [];
+    for (var [field, fieldsqueries] of Object.entries(queries)) {
+        fieldsqueries.forEach( (q) => { allqueries.push(query(db, field, q)); });
+    }
+    //const allqueries = Object.keys(queries).map((key) => query(db, key, queries[key]));
     const allresults = await Promise.all(allqueries);
 
     const setOfResults = intersection(allresults.map((arr) => new Set(arr)));
