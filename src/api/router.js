@@ -31,6 +31,7 @@ const getApiRouter = async () => {
     apirouter.use(apiTransaction);
     apirouter.use(apiAuth);
     apirouter.get('/meta/search', isUser, async (ctx) => { await search(ctx); });
+    apirouter.get('/resolve/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { ctx.body = JSON.stringify(ctx.params.hash); });
     apirouter.get('/meta/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { await getMetadata(ctx); });
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.post('/upload', isUser, async (ctx, next) => { await uploadDataset(ctx, next); });
