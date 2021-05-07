@@ -1,3 +1,4 @@
+import { log } from '../util/index.js';
 import { getDb, mayRead } from '../database/index.js';
 
 const queryName = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE name LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);
@@ -59,15 +60,16 @@ const intersection = (arrOfSets) => {
 const processQueries = async (db, queries) => {
     // if there are multiple queries with the same key, we need to replicate the key...
     // this may not be particularly elegant:
+    log(queries);
     const allqueries = [];
-    for (var [field, fieldsqueries] of Object.entries(queries)) {
+    Object.keys(queries).forEach((field) => {
+        const fieldsqueries = queries[field];
         if (fieldsqueries instanceof Array) {
             fieldsqueries.forEach((q) => { allqueries.push(query(db, field, q)); });
         } else {
             allqueries.push(query(db, field, fieldsqueries));
         }
-    }
-    // const allqueries = Object.keys(queries).map((key) => query(db, key, queries[key]));
+    });
     const allresults = await Promise.all(allqueries);
 
     const setOfResults = intersection(allresults.map((arr) => new Set(arr)));
