@@ -67,7 +67,6 @@ export const connect = async () => {
     state.isReady = true;
 };
 
-
 export const getConnection = () => {
     if (!state.connection || !state.isReady) {
         throw new Error(`Trying to obtain a connection before the database

@@ -2,7 +2,6 @@ import {
     getDb, hashesLike,
 } from '../database/index.js';
 
-
 export default async (ctx, next) => {
     const { dsetid } = ctx.params;
     ctx.assert(dsetid,

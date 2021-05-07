@@ -16,7 +16,6 @@ import {
     listMatchingWebhooks,
 } from '../database/index.js';
 
-
 export const updateHookAuth = async (ctx) => {
     const owner = ctx.state.authdata.user;
     ctx.assert(owner, 401, 'anonymously registering an webhook is not possible.');
@@ -104,7 +103,6 @@ export const executeWebhooks = async (ctx) => {
     const hookids = await listMatchingWebhooks(db, author, meta.tags);
 
     const hooks = await Promise.all(hookids.map((id) => getWebhookFromDb(db, id)));
-
 
     // get all hookowners for authentication
     let hookowners = new Set(hooks.map((hook) => (hook.owner)));

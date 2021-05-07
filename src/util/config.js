@@ -7,7 +7,6 @@ let config = null;
 
 export const getConfig = () => config;
 
-
 const loadFile = async (path) => {
     const string = await fsPromise.readFile(
         path,

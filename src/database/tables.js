@@ -117,7 +117,6 @@ const tables = [
     },
 ];
 
-
 const tableExists = async (db, table) => {
     const query = `
         SELECT EXISTS (

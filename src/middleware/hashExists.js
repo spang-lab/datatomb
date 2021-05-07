@@ -2,7 +2,6 @@ import {
     getDb, datasetExists,
 } from '../database/index.js';
 
-
 export default async (ctx, next) => {
     const { hash } = ctx.params;
     ctx.assert(hash,

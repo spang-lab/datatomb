@@ -12,7 +12,6 @@ export const COLOR = {
     CYAN: '\x1b[36m',
 };
 
-
 export const log = (text, color = COLOR.RESET) => {
     const time = new Date().toLocaleTimeString('en-US', { hour12: false });
     const arr = [COLOR.CYAN, time, color, ' >>', text, COLOR.RESET];
