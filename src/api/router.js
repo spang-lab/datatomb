@@ -1,7 +1,7 @@
 import Router from 'koa-router';
 import koaBody from 'koa-body';
 import search from './search.js';
-import { get as getMetadata } from './metadata.js';
+import { get as getMetadata, update as updateMetadata } from './metadata.js';
 import {
     uploadDataset, getDataset, rmDataset, getLog, shredDataset, checkDataset, listOrphans,
 } from './dataset.js';
@@ -35,6 +35,7 @@ const getApiRouter = async () => {
     apirouter.get('/meta/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { await getMetadata(ctx); });
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.post('/upload', isUser, async (ctx, next) => { await uploadDataset(ctx, next); });
+    apirouter.post('/update/:dsetid', resolveIdentifier, hashExists, isOwnerOrAdmin, async (ctx) => { await updateMetadata(ctx); });
     apirouter.get('/auth', (ctx) => { ctx.body = ctx.state.authdata; });
     apirouter.get('/log/:dsetid', resolveIdentifier, isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
     apirouter.post('/webhooks/register', isUser, koaBody(), async (ctx) => { await registerWebhook(ctx); });

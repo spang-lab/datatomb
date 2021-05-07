@@ -89,6 +89,16 @@ const getInsertDataGeneratorId = (db, datagen) => db.task('getInsertDataGenerato
         .then((id) => id || t.one('INSERT INTO datagenerators(kind, instance) VALUES($1, $2) RETURNING id', [datagen.kind, datagen.instance], (t2) => t2.id));
 });
 
+const updateDataset = (db, hash, metadata, dgenid) => db.one('UPDATE datasets SET name = $/name/, projectname = $/projectname/, description=$/description/, data=$/data/, generator=$/dgenid/, share=$/share/ WHERE id = (SELECT max(id) FROM datasets WHERE hash = $/hash/) RETURNING id;',
+    {
+        hash,
+        name: metadata.name,
+        projectname: metadata.projectname,
+        description: metadata.description,
+        data: metadata.data,
+        dgenid,
+        share: metadata.share,
+    }, (t) => t.id);
 const getInsertDatasetId = (db, hash, metadata, dgenid) => db.one('INSERT INTO datasets(hash, name, projectname, description, data, generator, share) VALUES($/hash/, $/name/, $/projectname/, $/description/, $/data/, $/dgenid/, $/share/) RETURNING id;',
     {
         hash,
@@ -126,6 +136,38 @@ export const add = async (db, hash, metadata) => {
 };
 
 const getTags = async (db, hash) => db.map('SELECT name FROM tags WHERE id IN (SELECT tag FROM datasettags WHERE dataset = (SELECT max(id) FROM datasets WHERE hash = $1))', hash, (row) => row.name);
+
+export const update = async (db, hash, metadata) => {
+    log(`update metadata for dataset ${hash}.`);
+
+    const oldTags = await getTags(db, hash);
+    const newTags = new Set(metadata.tags);
+    const tagsToDelete = oldTags.filter((tag) => !newTags.has(tag));
+
+    // generate tags:
+    const newtagids = await Promise.all([...newTags].map((tag) => getInsertTagId(db, tag)));
+    const tagIdsToDelete = await Promise.all(tagsToDelete.map((tag) => getInsertTagId(db, tag)));
+    // genetare datagenerator:
+    const datagenid = await getInsertDataGeneratorId(db, metadata.generator);
+    // generate data set itself:
+    const dsetid = await updateDataset(db, hash, metadata, datagenid);
+    // if there is a parent, generate the relation to it:
+    if (metadata.parents) {
+        let parents = null;
+        if (Array.isArray(metadata.parents)) {
+            parents = metadata.parents;
+        } else {
+            parents = [metadata.parents];
+        }
+        const p = parents.map((parenthash) => db.none('INSERT INTO parentdatasets(child, parent) VALUES($/thisdset/, (SELECT MAX(id) FROM datasets where hash = $/parenthash/))', { thisdset: dsetid, parenthash }));
+        await Promise.all(p);
+    }
+
+    // remove old tags
+    await Promise.all(tagIdsToDelete.map((id) => db.none('DELETE FROM datasettags WHERE dataset = $/thisdset/ and tag=$/tagid/;', { thisdset: dsetid, tagid: id })));
+    // add tags to the dataset if not already
+    await Promise.all(newtagids.map((id) => db.none('INSERT INTO datasettags(dataset, tag) VALUES($/thisdset/, $/tagid/) ON CONFLICT DO NOTHING', { thisdset: dsetid, tagid: id })));
+};
 
 const getGenerator = async (db, hash) => db.one('SELECT kind, instance, ref FROM datagenerators WHERE id IN (SELECT generator FROM datasets where id = (SELECT max(id) FROM datasets WHERE hash = $1))', hash, (row) => ({ kind: row.kind, instance: row.instance, ref: row.ref }));
 

@@ -103,7 +103,7 @@ export const uploadDataset = async (ctx) => {
         await fs.rename(tmpfilename, finalfilename, (err) => { if (err) { throw err; } });
     } else if (!havefile && !fexists) {
         // NO file has been uploaded, but a hash was provided, but it  doesn't exist in the store.
-        ctx.throw(400, 'file not submitted but it doesn\' exist, yet.');
+        ctx.throw(400, 'file not submitted but it doesn\'t exist, yet.');
     } else if (!havefile && fexists) {
         // file hasn't been uploaded but it exists (normal behaviour)
         // check that hash matches the file

@@ -31,12 +31,11 @@ export const delHook = async (db, id) => db.none('DELETE FROM webhooks WHERE id 
 
 export const listMatching = async (db, author, taglist) => {
     // convert taglist to string:
-    if( taglist.length === 0 ) {
-        return (db.map(`SELECT id FROM webhooks WHERE (author = $1 OR author IS NULL);`, author, (row) => (row.id)));
-    } else {
-        const tagstr = `(${taglist.map((str) => `'${str}'`).join(',')})`;
-        console.log(tagstr);
-        // avoid escaping of tagstr:
-        return (db.map(`SELECT id FROM webhooks WHERE (tag in ${tagstr} OR tag IS NULL) AND (author = $1 OR author IS NULL);`, author, (row) => (row.id)));
+    if (taglist.length === 0) {
+        return (db.map('SELECT id FROM webhooks WHERE (author = $1 OR author IS NULL);', author, (row) => (row.id)));
     }
+    const tagstr = `(${taglist.map((str) => `'${str}'`).join(',')})`;
+    console.log(tagstr);
+    // avoid escaping of tagstr:
+    return (db.map(`SELECT id FROM webhooks WHERE (tag in ${tagstr} OR tag IS NULL) AND (author = $1 OR author IS NULL);`, author, (row) => (row.id)));
 };

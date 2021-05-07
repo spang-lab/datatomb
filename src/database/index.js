@@ -8,6 +8,7 @@ export {
     mayRead,
     shredMetadata,
     add as addDatasetToDb,
+    update as updateMetadata,
     allNonDeletedDatasets,
     DatasetState,
     getState as getDatasetState,

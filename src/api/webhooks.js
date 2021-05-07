@@ -121,7 +121,7 @@ export const executeWebhooks = async (ctx) => {
                 const authdata = await authenticate(config.authserver, token);
                 authdata.token = token;
                 return ([uname, authdata]);
-            } catch( exc ) {
+            } catch (exc) {
                 log(`error authenticating ${uname}: ${exc}`);
                 return ([uname, undefined]);
             }
