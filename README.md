@@ -75,6 +75,9 @@ TODO: anything else??
 If you are the owner of the dataset `<hash>` (or admin), you may see the access history to that data set.
 ### `GET /<hash>`
 downloads dataset, if you are allowed to.
+### `POST /meta/updata/<hash>`
+updates the metadata of a dataset with hash `<hash>`, must be full metadata object as also used when uploading. Must only contain a `data` field (it is still multiform-post data).
+
 ### `POST /upload`
 uploads dataset: Multiform-post with exactly two fields:
   - `file`: the file to upload

@@ -35,8 +35,8 @@ const getApiRouter = async () => {
     apirouter.get('/meta/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { await getMetadata(ctx); });
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.post('/upload', isUser, async (ctx, next) => { await uploadDataset(ctx, next); });
-    apirouter.post('/update/:dsetid', resolveIdentifier, hashExists, isOwnerOrAdmin, async (ctx) => { await updateMetadata(ctx); });
     apirouter.get('/auth', (ctx) => { ctx.body = ctx.state.authdata; });
+    apirouter.post('/meta/update/:dsetid', resolveIdentifier, hashExists, isOwnerOrAdmin, async (ctx) => { await updateMetadata(ctx); });
     apirouter.get('/log/:dsetid', resolveIdentifier, isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
     apirouter.post('/webhooks/register', isUser, koaBody(), async (ctx) => { await registerWebhook(ctx); });
     apirouter.get('/webhooks/list', isUser, async (ctx) => { await listWebhooks(ctx); });
