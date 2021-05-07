@@ -5,7 +5,7 @@ const types = [
     {
         name: 'dsetoperation',
         create: (db) => db.none(`
-            CREATE TYPE dsetoperation AS ENUM('created', 'read', 'deleted');
+            CREATE TYPE dsetoperation AS ENUM('created', 'read', 'deleted', 'updated');
         `),
     },
     {

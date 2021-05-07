@@ -1,7 +1,7 @@
 import Busboy from 'busboy';
 import { log } from '../util/index.js';
 import {
-    datasetExists, getDb, getMetadata, addDatasetToDb, shredMetadata, updateMetadata,
+    datasetExists, getDb, addLog, getMetadata, addDatasetToDb, shredMetadata, updateMetadata,
 } from '../database/index.js';
 
 export const add = async (ctx) => {
@@ -31,6 +31,7 @@ export const shred = async (ctx) => {
 };
 export const update = async (ctx) => {
     const { hash } = ctx.params;
+    const { user } = ctx.state.authdata;
     const busboy = new Busboy({ headers: ctx.req.headers });
     log(`updating metadata for hash = ${hash}`);
     if (!await datasetExists(ctx, hash)) {
@@ -57,5 +58,6 @@ export const update = async (ctx) => {
 
     const db = getDb();
     await updateMetadata(db, hash, metadata);
+    await addLog(db, hash, user, 'updated');
     ctx.body = 'ok';
 };
