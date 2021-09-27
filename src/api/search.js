@@ -1,5 +1,5 @@
 import { log } from '../util/index.js';
-import { getDb, mayRead } from '../database/index.js';
+import { getDb, mayRead, getMetadata } from '../database/index.js';
 
 const queryName = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE name LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);
 const queryAuthor = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset from log WHERE who LIKE $1 AND operation = $2 EXCEPT SELECT dataset FROM log WHERE operation = $3)', [val, 'created', 'deleted'], (r) => r.hash);
@@ -42,7 +42,7 @@ const query = (db, kind, searchstr) => {
     case 'before':
         return queryBefore(db, searchstr);
     default:
-        throw (new Error(`unknown search query "${searchstr}"`));
+        throw (new Error(`unknown search query "${kind}"`));
     }
 };
 
@@ -77,17 +77,55 @@ const processQueries = async (db, queries) => {
     // turn into array:
     return [...setOfResults];
 };
+const enrichMetadata = async (db, hash, fields) => {
+    // add additional fields fetched from the db
+    if (fields.length === 0
+        || (fields.length === 1 && fields[0] === 'hash')
+    ) {
+        return hash;
+    }
+    // more complex than that
+    log('request db');
+    const result = {};
+    log(fields);
+    // potentially can map and abbreviate at this point.
+    let mdatafields = fields;
+    if (mdatafields.includes('hash')) {
+        result.hash = hash;
+        mdatafields = mdatafields.filter((f) => (f !== 'hash'));
+    }
+    const mdata = await getMetadata(db, hash);
+    mdatafields.forEach((field) => {
+        if (field in mdata) {
+            result[field] = mdata[field];
+        } else {
+            throw (new Error(`unknown metadata field "${field}"`));
+        }
+    });
+    return result;
+};
 const search = async (ctx) => {
     const db = getDb();
-    const result = await processQueries(db, ctx.request.query);
+    const resultFields = ('properties' in ctx.request.query)
+        ? ctx.request.query.properties.split(',')
+        : ['hash'];
+    const queries = ctx.request.query;
+    // remove properties from queries
+    delete queries.properties;
 
-    // filter out dsets that are not meant for this user:
+    // get search results
+    const result = await processQueries(db, queries);
+
+    // filter out dsets that are not accessible to this user:
     const preadable = result.map((hash) => mayRead(db, ctx.state.authdata, hash));
     const readable = await Promise.all(preadable);
 
     ctx.body = JSON.stringify(
-        result
-            .filter((hash, index) => (readable[index])),
+        await Promise.all(
+            result
+                .filter((hash, index) => (readable[index])) // remove inaccessibles
+                .map((hash) => enrichMetadata(db, hash, resultFields)),
+        ),
     );
 };
 export { search as default };
