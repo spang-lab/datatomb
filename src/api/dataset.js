@@ -45,7 +45,8 @@ export const uploadDataset = async (ctx) => {
         busboy.on('file', (fieldname, file) => {
             log(`receiving file: ${fieldname}`);
             if (fieldname !== 'file') {
-                reject(new Error('only fieldnames with called "file" may contain file upload data.'));
+                busboy.emit('error',
+                    new Error('only fieldnames with called "file" may contain file upload data.'));
             }
 
             haveFileP = true;
@@ -67,7 +68,8 @@ export const uploadDataset = async (ctx) => {
             } else if (fieldname === 'hash') {
                 submittedHash = val;
             } else {
-                reject(new Error('apart from the "file", only one other fieldname, "data" is allowed.'));
+                busboy.emit('error',
+                    new Error('apart from the "file", only one other fieldname, "data" is allowed.'));
             }
         });
         busboy.on('finish', () => {
@@ -79,9 +81,15 @@ export const uploadDataset = async (ctx) => {
                 hashres = hash.hex();
             }
             if (!(haveFileP || submittedHash) || !meta) {
-                reject(new Error('incomplete upload (either file or metadata is missing)'));
+                busboy.emit('error', new Error('incomplete upload (either file or metadata is missing)'));
             }
             resolve([hashres, meta, haveFileP]);
+        });
+        busboy.on('error', async (err) => {
+            if (await fs.exists(tmpfilename)) {
+                await fs.remove(tmpfilename);
+            }
+            reject(err);
         });
         ctx.req.pipe(busboy);
     });
