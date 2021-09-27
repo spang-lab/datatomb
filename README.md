@@ -51,8 +51,10 @@ Below is prefixed with `/api/v1/`.
 ### `GET /meta/<hash>`
 returns all metadata of `<hash>` as json object.
 
-### `GET /meta/search?<query>`
-returns a list of hashes. `query` may be any key-value pair combining
+### `GET /meta/search?<query>[&properties=a,comma,separated,list]`
+Returns a list of hashes (if properties is not given) or a vector of objects containing the metadata that is contained in the comma separated list of the properties query.
+
+`query` may be any key-value pair combining
   - `any`: free text search in all fields
   - `name`: user-provided (possibly non-unique) name of the dataset.
   - `author`: datasets authored by some specific user
@@ -70,7 +72,11 @@ Several conditions are AND-connected.
 
 Example: `GET /meta/search?name=my_dataset&author=my_user` will return all datasets named "my_dataset" and were created by "my_user".
 
-TODO: anything else??
+`properties` may contain any key that is contained in the metadata, this is currently 
+`tags`, `name`, `projectname`, `description`, `share` and `data`. Additionally, `hash` is also allowed. In case the `properties` query is given, a list of objects (with every object contain) is returned instead of a list of hashes.
+
+Example: `GET /meta/search?name=my_dataset&author=my_user&properties=hash,name,description` will return the same datasets as in the previous example but each element also contains the name and the description of the dataset.
+
 ### `GET /log/<hash>`
 If you are the owner of the dataset `<hash>` (or admin), you may see the access history to that data set.
 ### `GET /<hash>`
