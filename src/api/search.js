@@ -1,16 +1,17 @@
 import { log } from '../util/index.js';
-import { getDb, mayRead, getMetadata } from '../database/index.js';
+import {
+    getDb, mayRead, getMetadata, hashesLike,
+} from '../database/index.js';
 
 const queryName = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE name LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);
 const queryAuthor = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset from log WHERE who LIKE $1 AND operation = $2 EXCEPT SELECT dataset FROM log WHERE operation = $3)', [val, 'created', 'deleted'], (r) => r.hash);
 const queryTag = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset FROM datasettags WHERE tag IN (SELECT id FROM tags WHERE name LIKE $1) EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);
-const queryHash = async (db, val) => db.map('SELECT hash FROM datasets WHERE hash LIKE $1;', [val], (r) => r.hash);
 const queryDescription = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE description LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [`%${val}%`, 'deleted'], (r) => r.hash);
 const queryAny = async (db, val) => {
     // we may also use 'multi' which would be more efficient. but this leads to code doubling...?
     const allresults = await Promise.all([
         queryName(db, val),
-        queryHash(db, val),
+        hashesLike(db, val),
         queryAuthor(db, val),
         queryTag(db, val),
         queryDescription(db, val),
@@ -44,7 +45,7 @@ const query = (db, kind, searchstr) => {
     case 'before':
         return queryBefore(db, searchstr);
     case 'hash':
-        return queryHash(db, searchstr);
+        return hashesLike(db, searchstr);
     default:
         throw (new Error(`unknown search query "${kind}"`));
     }
