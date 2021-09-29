@@ -81,7 +81,7 @@ Example: `GET /meta/search?name=my_dataset&author=my_user&properties=hash,name,d
 If you are the owner of the dataset `<hash>` (or admin), you may see the access history to that data set.
 ### `GET /<hash>`
 downloads dataset, if you are allowed to.
-### `POST /meta/updata/<hash>`
+### `POST /meta/update/<hash>`
 updates the metadata of a dataset with hash `<hash>`, must be full metadata object as also used when uploading. Must only contain a `data` field (it is still multiform-post data).
 
 ### `POST /upload`
@@ -117,6 +117,8 @@ If you are the owner of a dataset or admin, you may remove your published data s
 ### `GET /auth`
 returns user name and other authdata if a valid token was provided. Note that there is no need to call this endpoint, it is just for checking authentication and getting user permissions (user, admin, etc)
 
+### `GET /resolve/[id]`
+returns a hash that is identified by `id`.
 
 ### webhooks
 #### `GET /webhooks/<id>`
