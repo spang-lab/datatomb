@@ -11,7 +11,12 @@ export const exists = async (ctx, hash) => {
     return (await mdata) && (datasetFileExists(ctx, hash));
 };
 // returns all hashes that have `id` as a substring
-export const hashesLike = async (db, id) => db.map('SELECT DISTINCT(hash) FROM datasets WHERE hash LIKE $1', [`%${id}%`], (m) => m.hash);
+export const hashesLike = async (db, id, deleted = false) => {
+    if( deleted ) {
+        return (db.map('SELECT DISTINCT(hash) FROM datasets WHERE hash LIKE $1', [`%${id}%`], (m) => m.hash));
+    }
+    return (db.map('SELECT DISTINCT(hash) FROM datasets WHERE id in (SELECT DISTINCT(dataset) FROM log WHERE operation != \'deleted\') AND hash LIKE $1', [`%${id}%`], (m) => m.hash));
+}
 
 export const allNonDeletedDatasets = async (db) => db.map('SELECT DISTINCT(hash) FROM datasets where id in (SELECT DISTINCT(dataset) FROM log WHERE operation != \'deleted\');', [], (h) => h.hash);
 

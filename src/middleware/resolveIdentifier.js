@@ -17,7 +17,7 @@ export default async (ctx, next) => {
         // no exact match
         // find hashes that have dsetid as a substring
         const db = getDb(ctx);
-        const matches = await hashesLike(db, id);
+        const matches = await hashesLike(db, id, true);
         if (matches.length === 0) {
             ctx.throw(404, `no hash matches abbreviated id ${id}`);
         } else if (matches.length > 1) {
