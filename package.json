@@ -1,6 +1,6 @@
 {
   "name": "datatomb",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "description": "HTTP server for data sets.",
   "main": "index.js",
   "dependencies": {
