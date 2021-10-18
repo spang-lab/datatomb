@@ -1,4 +1,4 @@
-import Router from 'koa-router';
+import Router from '@koa/router';
 import koaBody from 'koa-body';
 import { readFile } from 'fs/promises';
 import search from './search.js';

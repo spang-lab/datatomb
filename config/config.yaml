@@ -4,7 +4,7 @@ database:
   port: 5432
 
 server:
-  port: 8080
+  port: 8088
   datasetpath: /tmp/datatomb
 
 authserver:
