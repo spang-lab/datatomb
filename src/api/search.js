@@ -90,9 +90,7 @@ const enrichMetadata = async (db, hash, fields) => {
         return hash;
     }
     // more complex than that
-    log('request db');
     const result = {};
-    log(fields);
     // potentially can map and abbreviate at this point.
     let mdatafields = fields;
     if (mdatafields.includes('hash')) {
