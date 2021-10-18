@@ -8,7 +8,8 @@ export const metadataExists = async (db, hash) => {
 export const exists = async (ctx, hash) => {
     const db = getDb();
     const mdata = metadataExists(db, hash);
-    return (await mdata) && (datasetFileExists(ctx, hash));
+    const fexists = await datasetFileExists(ctx, hash);
+    return (await mdata) && fexists;
 };
 // returns all hashes that have `id` as a substring
 export const hashesLike = async (db, id, includeDeleted = false) => {
@@ -56,6 +57,10 @@ export const getShareState = async (db, hash) => {
 };
 
 export const mayRead = async (db, authdata, hash) => {
+    // if the dataset was deleted then we also cannot read it.
+    if (!await exists(db, hash)) {
+        return false;
+    }
     if (authdata.isAdmin) {
         log(`admin access for ${authdata.user}`);
         return true;
