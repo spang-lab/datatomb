@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import koaBody from 'koa-body';
-import { readFile } from 'fs/promises';
+import { getConfig } from '../util/index.js';
 import search from './search.js';
 import { get as getMetadata, update as updateMetadata } from './metadata.js';
 import {
@@ -26,13 +26,10 @@ import {
     isWebhookOwnerOrAdmin,
 } from '../middleware/index.js';
 
-const packageInfo = async (ctx) => {
-    const pkgInfo = await JSON.parse(
-        await readFile('package.json'),
-    );
-    ctx.body = `${pkgInfo.name} v${pkgInfo.version}`;
+const packageInfo = (ctx) => {
+    const cfg = getConfig();
+    ctx.body = `${cfg.packageName} v${cfg.packageVersion}`;
 };
-
 const getApiRouter = async () => {
     const apirouter = new Router();
     apirouter.use(apiError);
@@ -54,7 +51,7 @@ const getApiRouter = async () => {
     apirouter.get('/admin/orphans', isAdmin, async (ctx) => { await listOrphans(ctx); });
     apirouter.post('/admin/shred/:dsetid', resolveIdentifier, isAdmin, async (ctx) => { await shredDataset(ctx); });
     apirouter.get('/admin/check/:dsetid', resolveIdentifier, isAdmin, async (ctx) => { await checkDataset(ctx); });
-    apirouter.get('/version', async (ctx) => { await packageInfo(ctx); });
+    apirouter.get('/version', (ctx) => { packageInfo(ctx); });
     apirouter.get('/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { await getDataset(ctx); });
     apirouter.del('/:dsetid', resolveIdentifier, hashExists, isOwnerOrAdmin, async (ctx) => { await rmDataset(ctx); });
     return apirouter;

@@ -7,6 +7,8 @@ let config = null;
 
 export const getConfig = () => config;
 
+const packageInfo = async () => JSON.parse(await fsPromise.readFile('package.json'));
+
 const loadFile = async (path) => {
     const string = await fsPromise.readFile(
         path,
@@ -27,6 +29,9 @@ const getSecrets = () => {
 export const createConfig = async () => {
     log('Loading configuration...');
     const data = await loadFile('config/config.yaml');
+    const pkgInfo = await packageInfo();
+    data.packageName = pkgInfo.name;
+    data.packageVersion = pkgInfo.version;
     const secrets = await getSecrets();
     data.secrets = secrets;
     log('Config loaded successfully');
