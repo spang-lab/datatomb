@@ -120,7 +120,7 @@ const search = async (ctx) => {
     const result = await processQueries(db, queries);
 
     // filter out dsets that are not accessible to this user:
-    const preadable = result.map((hash) => mayRead(db, ctx.state.authdata, hash));
+    const preadable = result.map((hash) => datasetExists(db, hash) && mayRead(db, ctx.state.authdata, hash));
     const readable = await Promise.all(preadable);
 
     ctx.body = JSON.stringify(
