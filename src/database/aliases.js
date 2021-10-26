@@ -2,11 +2,11 @@
 
 export const aliasExists = async (db, name) => {
     const result = await db.oneOrNone('SELECT hash FROM aliases WHERE alias = $/name/ ORDER BY id DESC LIMIT 1;', { name });
-    return (result.hash !== null);
+    return (result && result.hash !== null);
 };
 export const aliasExistedAtTime = async (db, name, time) => {
     const result = await db.oneOrNone('SELECT hash FROM aliases WHERE alias = $/name/ AND time < $/time/ ORDER BY id DESC LIMIT 1;', { name, time });
-    return (result.hash !== null);
+    return (result && result.hash !== null);
 };
 
 export const insertAlias = async (db, name, to, owner) => db.none(

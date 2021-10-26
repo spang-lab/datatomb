@@ -72,7 +72,7 @@ const getApiRouter = async () => {
                    dsetIdFromBody, resolveIdentifier,
                    hashExists, wellFormedMnemonic, userMayEditAlias,
                    async (ctx) => addAlias(ctx));
-    apirouter.post('/alias/:mnemonic', isUser, koaBody(),
+    apirouter.put('/alias/:mnemonic', isUser, koaBody(),
                    dsetIdFromBody, resolveIdentifier,
                    hashExists, wellFormedMnemonic, userMayEditAlias,
                    async (ctx) => addAlias(ctx));
