@@ -7,6 +7,7 @@ const queryName = async (db, val) => db.map('SELECT hash FROM datasets WHERE id 
 const queryAuthor = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset from log WHERE who LIKE $1 AND operation = $2 EXCEPT SELECT dataset FROM log WHERE operation = $3)', [val, 'created', 'deleted'], (r) => r.hash);
 const queryTag = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT dataset FROM datasettags WHERE tag IN (SELECT id FROM tags WHERE name LIKE $1) EXCEPT SELECT dataset FROM log WHERE operation = $2)', [val, 'deleted'], (r) => r.hash);
 const queryDescription = async (db, val) => db.map('SELECT hash FROM datasets WHERE id IN (SELECT id FROM datasets WHERE description LIKE $1 EXCEPT SELECT dataset FROM log WHERE operation = $2)', [`%${val}%`, 'deleted'], (r) => r.hash);
+const queryAlias = async (db, val) => db.map('SELECT alias FROM aliases WHERE id IN (SELECT max(id) FROM aliases GROUP BY alias) AND hash IS NOT NULL AND alias LIKE LOWER(%$/val/%);', { val }, (r) => r.hash);
 const queryAny = async (db, val) => {
     // we may also use 'multi' which would be more efficient. but this leads to code doubling...?
     const allresults = await Promise.all([
@@ -14,6 +15,7 @@ const queryAny = async (db, val) => {
         hashesLike(db, val),
         queryAuthor(db, val),
         queryTag(db, val),
+        queryAlias(db, val),
         queryDescription(db, val),
     ]);
     const uniqueresults = [...new Set(Array.prototype.concat(...allresults))];
@@ -46,6 +48,8 @@ const query = (db, kind, searchstr) => {
         return queryBefore(db, searchstr);
     case 'hash':
         return hashesLike(db, searchstr);
+    case 'alias':
+        return queryAlias(db, searchstr);
     default:
         throw (new Error(`unknown search query "${kind}"`));
     }
