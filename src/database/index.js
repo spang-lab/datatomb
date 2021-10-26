@@ -28,8 +28,10 @@ export {
     getUserToken as getWebhookUserToken,
 } from './webhooks.js';
 export {
-    newAlias,
+    insertAlias,
     aliasExists,
+    getAlias,
+    deleteAlias,
 } from './aliases.js';
 
 export * from './getdb.js';

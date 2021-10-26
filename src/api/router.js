@@ -25,7 +25,15 @@ import {
     resolveIdentifier,
     isWebhookOwnerOrAdmin,
     createMnemonic,
+    wellFormedMnemonic,
+    userMayEditAlias,
+    aliasExists,
+    dsetIdFromBody,
 } from '../middleware/index.js';
+import {
+    addAlias,
+    deleteAlias,
+} from './aliases.js';
 
 const packageInfo = (ctx) => {
     const cfg = getConfig();
@@ -44,7 +52,17 @@ const getApiRouter = async () => {
     apirouter.get('/log/:dsetid', resolveIdentifier, isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
     // name resolution
     apirouter.get('/resolve/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { ctx.body = JSON.stringify(ctx.params.hash); });
-    apirouter.post('/alias', isUser, createMnemonic, async (ctx) => { ctx.body = ctx.params.mnemonic; });
+    apirouter.post('/alias', isUser, createMnemonic, koaBody(),
+                   dsetIdFromBody, resolveIdentifier,
+                   hashExists, wellFormedMnemonic, userMayEditAlias,
+                   async (ctx) => addAlias(ctx));
+    apirouter.post('/alias/:mnemonic', isUser, koaBody(),
+                   dsetIdFromBody, resolveIdentifier,
+                   hashExists, wellFormedMnemonic, userMayEditAlias,
+                   async (ctx) => addAlias(ctx));
+    apirouter.del('/alias/:mnemonic', isUser, userMayEditAlias,
+                  aliasExists,
+                   async (ctx) => deleteAlias(ctx));
     // helpers
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.get('/auth', (ctx) => { ctx.body = ctx.state.authdata; });

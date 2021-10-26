@@ -9,3 +9,7 @@ export { default as hashExists } from './hashExists.js';
 export { default as resolveIdentifier } from './resolveIdentifier.js';
 export { default as isWebhookOwnerOrAdmin } from './isWebhookOwnerOrAdmin.js';
 export { default as createMnemonic } from './createMnemonic.js';
+export { default as dsetIdFromBody } from './dsetIdFromBody.js';
+export { default as wellFormedMnemonic } from './wellFormedMnemonic.js';
+export { default as userMayEditAlias } from './userMayEditAlias.js';
+export { default as aliasExists } from './aliasExists.js';

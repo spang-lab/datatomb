@@ -123,7 +123,20 @@ returns a hash that is identified by `id`.
 ### Aliases
 
 #### `POST /alias`
-with the hash as payload. returns a new and unique mnemonic
+with the hash as payload (send a POST field `target`). returns a new and unique mnemonic.
+
+Example:
+
+``` sh
+curl -v -X POST -H "Authorization: $token" -d 'target=39515f15' ${BASEURL}/alias
+```
+returns (may return)
+
+``` json
+{"alias":"polygon","hash":"39515f15a8b415c48babb6ede090c810a132ea9645c58fd9b973d6893178c139"}
+```
+
+
 #### `PUT /alias/[mnemonic]`
 with the hash as payload. mnemonic need not but may exist. if it exists, the alias is updated. if the hash is empty this is equivalent to DELETE it.
 #### `DELETE /alias/[mnemonic]` 
