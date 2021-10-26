@@ -115,6 +115,19 @@ const tables = [
             );
         `),
     },
+    {
+        name: 'aliases',
+        columns: ['id', 'alias', 'hash', 'owner', 'time'],
+        create: (db) => db.none(`
+            CREATE TABLE aliases (
+                id              SERIAL  PRIMARY KEY NOT NULL,
+                alias           text NOT NULL,
+                hash            text,
+                owner           text NOT NULL,
+                time            timestamp NOT NULL
+            );
+        `),
+    },
 ];
 
 const tableExists = async (db, table) => {

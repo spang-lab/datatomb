@@ -27,4 +27,9 @@ export {
     updateAuth as updateWebhookAuth,
     getUserToken as getWebhookUserToken,
 } from './webhooks.js';
+export {
+    newAlias,
+    aliasExists,
+} from './aliases.js';
+
 export * from './getdb.js';

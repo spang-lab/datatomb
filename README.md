@@ -120,6 +120,19 @@ returns user name and other authdata if a valid token was provided. Note that th
 ### `GET /resolve/[id]`
 returns a hash that is identified by `id`.
 
+### Aliases
+
+#### `POST /alias`
+with the hash as payload. returns a new and unique mnemonic
+#### `PUT /alias/[mnemonic]`
+with the hash as payload. mnemonic need not but may exist. if it exists, the alias is updated. if the hash is empty this is equivalent to DELETE it.
+#### `DELETE /alias/[mnemonic]` 
+only allowed if the user is owner or admin of the alias
+#### `GET /alias/[mnemonic]`
+returns the hash the alias points to. If a timestamp is contained in the payload, resolves the alias to a given point in time.
+#### `GET /alias/reverse/[hash]` 
+reverse lookup of a hash, i.e. all mnemonics are returned that point to the hash. If a timestamp is contained in the payload, resolves the alias to a given point in time.
+
 ### webhooks
 #### `GET /webhooks/<id>`
 returns information about the webhook with id `<id>` if it is yours or you are admin.

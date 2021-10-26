@@ -8,3 +8,4 @@ export { default as mayRead } from './mayRead.js';
 export { default as hashExists } from './hashExists.js';
 export { default as resolveIdentifier } from './resolveIdentifier.js';
 export { default as isWebhookOwnerOrAdmin } from './isWebhookOwnerOrAdmin.js';
+export { default as createMnemonic } from './createMnemonic.js';
