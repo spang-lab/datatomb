@@ -21,4 +21,5 @@ export const getAliasAtTime = async (db, name, time) => db.oneOrNone('SELECT ali
 export const deleteAlias = async (db, name, owner) => insertAlias(db, name, null, owner);
 
 // this will also return deleted aliases!
-export const allReverseAliases = async(db, hash) => db.map('SELECT alias FROM aliases WHERE hash = $/hash/;', { hash }, (result) => result.alias);
+export const allReverseAliases = async(db, hash) => db.map('SELECT DISTINCT alias FROM aliases WHERE hash = $/hash/;', { hash }, (result) => result.alias);
+export const existingReverseAliases = async (db, hash) => db.map('SELECT alias FROM aliases WHERE id IN (SELECT max(id) FROM aliases GROUP BY alias) AND hash = $/hash/;', { hash }, (r) => r.alias);

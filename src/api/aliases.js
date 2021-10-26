@@ -6,6 +6,7 @@ import {
     mayRead,
     insertAlias,
     allReverseAliases,
+    existingReverseAliases,
     aliasExists,
     aliasExistedAtTime,
     getDb,
@@ -61,12 +62,13 @@ export const reverseAlias = async (ctx) => {
     const { time } = ctx.state;
     const db = getDb();
     log(`reverse lookup of hash ${hash}.`);
-    const allAliases = await allReverseAliases(db, hash);
-    let exists;
     if (time) {
-        exists = await Promise.all(allAliases.map(async (alias) => aliasExistedAtTime(db, alias, time)));
+        log(`reverse aliases at ${time}`);
+        const allAliases = await allReverseAliases(db, hash);
+        const exists = await Promise.all(allAliases.map(async (alias) => aliasExistedAtTime(db, alias, time)));
+        ctx.body = allAliases.filter((_,index) => exists[index]);
     } else {
-        exists = await Promise.all(allAliases.map(async (alias) => aliasExists(db, alias)));
+        log('current reverse aliases');
+        ctx.body = await existingReverseAliases(db, hash);
     }
-    ctx.body = allAliases.filter((_,index) => exists[index]);
 };
