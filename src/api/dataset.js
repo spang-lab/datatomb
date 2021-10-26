@@ -6,6 +6,7 @@ import { log } from '../util/index.js';
 import { add as addMetadata, shred as shredMetadata } from './metadata.js';
 import {
     getDb, addLog, getLog as getLogFromDb, allNonDeletedDatasets, getDatasetState, DatasetState,
+    existingReverseAliases, deleteAlias,
 } from '../database/index.js';
 import { get as getDsetstore } from '../context/dsetstore.js';
 import { executeWebhooks } from './webhooks.js';
@@ -198,6 +199,21 @@ export const rmDataset = async (ctx) => {
     } catch (e) {
         ctx.throw(500,
             `cannot remove the file: ${e.message}`);
+    }
+
+    // remove aliases that point to this hash:
+    try {
+        const db = getDb();
+        const { user } = ctx.state.authdata;
+        const aliases = await existingReverseAliases(db, hash);
+        if (aliases.length > 0) {
+            // this if is mainly to suppress the output if aliases = [].
+            log(`deleting aliases ${aliases}.`);
+            await Promise.all(aliases.map(async (alias) => deleteAlias(db, alias, user)));
+        }
+    } catch (e) {
+        ctx.throw(500,
+                  `could not remove aliases to hash: ${e}`);
     }
 
     ctx.body = JSON.stringify(
