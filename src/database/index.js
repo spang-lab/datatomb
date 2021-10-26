@@ -34,6 +34,7 @@ export {
     getAlias,
     getAliasAtTime,
     deleteAlias,
+    allReverseAliases,
 } from './aliases.js';
 
 export * from './getdb.js';

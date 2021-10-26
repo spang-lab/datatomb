@@ -34,6 +34,7 @@ import {
     addAlias,
     deleteAlias,
     getAlias,
+    reverseAlias,
 } from './aliases.js';
 
 const packageInfo = (ctx) => {
@@ -66,6 +67,7 @@ const getApiRouter = async () => {
     apirouter.get('/log/:dsetid', resolveIdentifier, isOwnerOrAdmin, async (ctx) => { await getLog(ctx); });
     // name resolution
     apirouter.get('/resolve/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { ctx.body = JSON.stringify(ctx.params.hash); });
+    apirouter.get('/alias/reverse/:dsetid', parseTime, resolveIdentifier, hashExists, mayRead, reverseAlias);
     apirouter.post('/alias', isUser, createMnemonic, koaBody(),
                    dsetIdFromBody, resolveIdentifier,
                    hashExists, wellFormedMnemonic, userMayEditAlias,

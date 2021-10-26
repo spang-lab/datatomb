@@ -5,6 +5,9 @@ import {
     getAliasAtTime as dbGetAliasAtTime,
     mayRead,
     insertAlias,
+    allReverseAliases,
+    aliasExists,
+    aliasExistedAtTime,
     getDb,
 } from '../database/index.js';
 
@@ -42,7 +45,6 @@ export const getAlias = async (ctx) => {
     const { alias, hash, owner } = (time)
           ? await dbGetAliasAtTime(db, mnemonic, time)
           : await dbGetAlias(db, mnemonic);
-    log({alias,hash,owner});
     if (!await mayRead(db, ctx.state.authdata, hash)) {
         // people who may not read the hash may also not resolve the alias
         ctx.throw(401, 'unauthorized read.');
@@ -52,4 +54,19 @@ export const getAlias = async (ctx) => {
         hash,
         owner,
     };
+};
+
+export const reverseAlias = async (ctx) => {
+    const { hash } = ctx.params;
+    const { time } = ctx.state;
+    const db = getDb();
+    log(`reverse lookup of hash ${hash}.`);
+    const allAliases = await allReverseAliases(db, hash);
+    let exists;
+    if (time) {
+        exists = await Promise.all(allAliases.map(async (alias) => aliasExistedAtTime(db, alias, time)));
+    } else {
+        exists = await Promise.all(allAliases.map(async (alias) => aliasExists(db, alias)));
+    }
+    ctx.body = allAliases.filter((_,index) => exists[index]);
 };

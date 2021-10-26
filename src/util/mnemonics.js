@@ -1,3 +1,5 @@
+// taken from https://gist.github.com/fogleman/c4a1f69f34c7e8a00da8
+// but removed "reverse" as it has special meaning here.
 const wordlist = [
     'acrobat', 'africa', 'alaska', 'albert', 'albino', 'album',
     'alcohol', 'alex', 'alpha', 'amadeus', 'amanda', 'amazon',
@@ -142,7 +144,7 @@ const wordlist = [
     'public', 'pulse', 'puma', 'pump', 'pyramid', 'queen',
     'radar', 'ralph', 'random', 'rapid', 'rebel', 'record',
     'recycle', 'reflex', 'reform', 'regard', 'regular', 'relax',
-    'reptile', 'reverse', 'ricardo', 'right', 'ringo', 'risk',
+    'reptile', 'ricardo', 'right', 'ringo', 'risk',
     'ritual', 'robert', 'robot', 'rocket', 'rodeo', 'romeo',
     'royal', 'russian', 'safari', 'salad', 'salami', 'salmon',
     'salon', 'salute', 'samba', 'sandra', 'santana', 'sardine',

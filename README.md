@@ -143,11 +143,11 @@ with the hash as payload. mnemonic need not but may exist. if it exists, the ali
 #### `DELETE /alias/[mnemonic]` 
 only allowed if the user is owner or admin of the alias
 
-#### `GET /alias/[mnemonic][?time=2021-10-01T12:00:00Z]`
+#### `GET /alias/[mnemonic][?time=2021-10-01T12:00:00]`
 returns the hash the alias points to. If a time query is contained in the URL, resolves the alias to a given point in time.
 
-#### `GET /alias/reverse/[hash]` 
-reverse lookup of a hash, i.e. all mnemonics are returned that point to the hash. If a timestamp is contained in the payload, resolves the alias to a given point in time.
+#### `GET /alias/reverse/[hash][?time=2021-10-01T12:00:00]` 
+reverse lookup of a hash, i.e. all mnemonics are returned that point to the hash. If a timestamp is contained as a query in the url, resolves the alias to a given point in time.
 
 ### webhooks
 #### `GET /webhooks/<id>`
