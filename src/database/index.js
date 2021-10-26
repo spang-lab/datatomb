@@ -30,7 +30,9 @@ export {
 export {
     insertAlias,
     aliasExists,
+    aliasExistedAtTime,
     getAlias,
+    getAliasAtTime,
     deleteAlias,
 } from './aliases.js';
 

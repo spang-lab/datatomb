@@ -33,12 +33,26 @@ import {
 import {
     addAlias,
     deleteAlias,
+    getAlias,
 } from './aliases.js';
 
 const packageInfo = (ctx) => {
     const cfg = getConfig();
     ctx.body = `${cfg.packageName} v${cfg.packageVersion}`;
 };
+
+const parseTime = async (ctx, next) => {
+    const { time } = ctx.request.query;
+    if (time) {
+        const date = new Date(time);
+        ctx.assert(date,
+                   400,
+                   `cannot parse date: ${time}`);
+        ctx.state.time = date;
+    }
+    await next();
+};
+
 const getApiRouter = async () => {
     const apirouter = new Router();
     apirouter.use(apiError);
@@ -61,8 +75,8 @@ const getApiRouter = async () => {
                    hashExists, wellFormedMnemonic, userMayEditAlias,
                    async (ctx) => addAlias(ctx));
     apirouter.del('/alias/:mnemonic', isUser, userMayEditAlias,
-                  aliasExists,
-                   async (ctx) => deleteAlias(ctx));
+                  aliasExists, deleteAlias);
+    apirouter.get('/alias/:mnemonic', parseTime, aliasExists, getAlias);
     // helpers
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });
     apirouter.get('/auth', (ctx) => { ctx.body = ctx.state.authdata; });

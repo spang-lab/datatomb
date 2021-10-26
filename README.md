@@ -139,10 +139,13 @@ returns (may return)
 
 #### `PUT /alias/[mnemonic]`
 with the hash as payload. mnemonic need not but may exist. if it exists, the alias is updated. if the hash is empty this is equivalent to DELETE it.
+
 #### `DELETE /alias/[mnemonic]` 
 only allowed if the user is owner or admin of the alias
-#### `GET /alias/[mnemonic]`
-returns the hash the alias points to. If a timestamp is contained in the payload, resolves the alias to a given point in time.
+
+#### `GET /alias/[mnemonic][?time=2021-10-01T12:00:00Z]`
+returns the hash the alias points to. If a time query is contained in the URL, resolves the alias to a given point in time.
+
 #### `GET /alias/reverse/[hash]` 
 reverse lookup of a hash, i.e. all mnemonics are returned that point to the hash. If a timestamp is contained in the payload, resolves the alias to a given point in time.
 
