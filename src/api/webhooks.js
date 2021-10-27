@@ -114,7 +114,6 @@ export const executeWebhooks = async (ctx) => {
     const allauthdata = new Map(
         await Promise.all(hookowners.map(async (uname) => {
             const token = await getWebhookUserToken(db, uname);
-            console.log(token);
             try {
                 const authdata = await authenticate(config.authserver, token);
                 authdata.token = token;
