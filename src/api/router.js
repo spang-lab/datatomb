@@ -47,8 +47,8 @@ const parseTime = async (ctx, next) => {
     if (time) {
         const date = new Date(time);
         ctx.assert(date,
-                   400,
-                   `cannot parse date: ${time}`);
+            400,
+            `cannot parse date: ${time}`);
         ctx.state.time = date;
     }
     await next();
@@ -69,15 +69,15 @@ const getApiRouter = async () => {
     apirouter.get('/resolve/:dsetid', resolveIdentifier, hashExists, mayRead, async (ctx) => { ctx.body = JSON.stringify(ctx.params.hash); });
     apirouter.get('/alias/reverse/:dsetid', parseTime, resolveIdentifier, hashExists, mayRead, reverseAlias);
     apirouter.post('/alias', isUser, createMnemonic, koaBody(),
-                   dsetIdFromBody, resolveIdentifier,
-                   hashExists, wellFormedMnemonic, userMayEditAlias,
-                   async (ctx) => addAlias(ctx));
+        dsetIdFromBody, resolveIdentifier,
+        hashExists, wellFormedMnemonic, userMayEditAlias,
+        async (ctx) => addAlias(ctx));
     apirouter.put('/alias/:mnemonic', isUser, koaBody(),
-                   dsetIdFromBody, resolveIdentifier,
-                   hashExists, wellFormedMnemonic, userMayEditAlias,
-                   async (ctx) => addAlias(ctx));
+        dsetIdFromBody, resolveIdentifier,
+        hashExists, wellFormedMnemonic, userMayEditAlias,
+        async (ctx) => addAlias(ctx));
     apirouter.del('/alias/:mnemonic', isUser, userMayEditAlias,
-                  aliasExists, deleteAlias);
+        aliasExists, deleteAlias);
     apirouter.get('/alias/:mnemonic', parseTime, aliasExists, getAlias);
     // helpers
     apirouter.get('/healthy', (ctx) => { ctx.body = JSON.stringify({ ok: true }); });

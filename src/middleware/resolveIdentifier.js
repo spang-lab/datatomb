@@ -19,7 +19,7 @@ export default async (ctx, next) => {
         const db = getDb(ctx);
         //
         // it may be a alias:
-        if( await aliasExists(db, id) ){
+        if (await aliasExists(db, id)) {
             const { hash } = await getAlias(db, id);
             ctx.params.hash = hash;
             ctx.params.abbrev = id;

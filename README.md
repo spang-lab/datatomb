@@ -138,7 +138,20 @@ returns (may return)
 
 
 #### `PUT /alias/[mnemonic]`
-with the hash as payload. mnemonic need not but may exist. if it exists, the alias is updated. if the hash is empty this is equivalent to DELETE it.
+with the hash as payload. mnemonic need not but may exist. if it exists, the alias will be updated.
+
+Example:
+
+``` sh
+curl -v -X PUT -H "Authorization: $token" -d 'target=39515f15' ${BASEURL}/alias/my_alias
+```
+returns
+
+``` json
+{"alias":"my_alias","hash":"39515f15a8b415c48babb6ede090c810a132ea9645c58fd9b973d6893178c139"}
+```
+
+
 
 #### `DELETE /alias/[mnemonic]` 
 only allowed if the user is owner or admin of the alias

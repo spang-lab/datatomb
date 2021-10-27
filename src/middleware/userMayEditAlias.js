@@ -4,9 +4,8 @@
 // - OR: the user is an admin.
 import {
     getDb,
-} from '../database/index.js';
-import {
     aliasExists,
+    getAlias,
 } from '../database/index.js';
 
 export default async (ctx, next) => {
@@ -14,17 +13,18 @@ export default async (ctx, next) => {
     const { user, isAdmin } = ctx.state.authdata;
     const db = getDb();
 
-    if( isAdmin || !await aliasExists(db) ) {
+    if (isAdmin || !await aliasExists(db)) {
         await next();
         return;
     }
     const aliasdata = await getAlias(db, mnemonic);
-    if( aliasdata.owner === user ) {
+    if (aliasdata.owner === user) {
         await next();
         return;
     }
-    ctx.assert(hash,
+    ctx.throw(
         401,
-        'user is not allowed to edit alias');
+        'user is not allowed to edit alias',
+    );
     await next();
 };

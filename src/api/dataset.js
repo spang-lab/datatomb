@@ -213,7 +213,7 @@ export const rmDataset = async (ctx) => {
         }
     } catch (e) {
         ctx.throw(500,
-                  `could not remove aliases to hash: ${e}`);
+            `could not remove aliases to hash: ${e}`);
     }
 
     ctx.body = JSON.stringify(
