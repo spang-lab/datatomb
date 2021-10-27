@@ -120,8 +120,12 @@ const getInsertDatasetId = (db, hash, metadata, dgenid) => db.one('INSERT INTO d
         share: metadata.share,
     }, (t) => t.id);
 
-export const add = async (db, hash, metadata) => {
+export const add = async (db, hash, metadata_) => {
     log(`add dataset ${hash} to db.`);
+    const metadata = metadata_;
+    if (!metadata.share) {
+        metadata.share = 'internal';
+    }
 
     // generate tags:
     const tagids = await Promise.all(metadata.tags.map((tag) => getInsertTagId(db, tag)));
