@@ -4,6 +4,7 @@
   "description": "HTTP server for data sets.",
   "main": "index.js",
   "dependencies": {
+    "@koa/router": "^10.0.0",
     "binary-file": "^0.2.3",
     "busboy": "^0.3.1",
     "fs": "^0.0.1-security",
@@ -14,8 +15,8 @@
     "koa": "^2.12.1",
     "koa-body": "^4.2.0",
     "koa-multer": "^1.0.2",
-    "@koa/router": "^10.0.0",
     "koa-send": "^5.0.0",
+    "lru-cache": "^6.0.0",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.4",
     "pg-promise": "^10.5.6"
