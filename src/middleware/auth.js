@@ -4,20 +4,21 @@ import {
 } from '../util/index.js';
 
 export default async (ctx, next) => {
-    const authtoken = ctx.header.authorization;
+    let authtoken = ctx.header.authorization;
+    // for backwards compatibility, we add a "Bearer" if there is just one token word:
+    if (authtoken.split(' ').length < 2) {
+        authtoken = `Bearer ${authtoken}`;
+    }
 
     const config = getConfig();
     ctx.assert(config.authserver,
         500,
         'auth server not configured.');
 
-    let authdata;
     try {
-        authdata = await authenticate(config.authserver, authtoken);
+        ctx.state.authdata = await authenticate(config.authserver, authtoken);
     } catch (e) {
         ctx.throw(401, e);
     }
-
-    ctx.state.authdata = authdata;
     await next();
 };

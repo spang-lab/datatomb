@@ -13,15 +13,15 @@ const isInGroup = (userdata, groupname) => {
 export default async (authserverconfig, authtoken) => {
     if (authtoken) {
         const { url, usergroup, admingroup } = authserverconfig;
+        const userinfourl = `${url}/user/info`;
 
-        log(`contacting authserver ${url}`);
-        const userdataPromise = fetch(url, {
-            method: 'post',
-            body: JSON.stringify({ token: authtoken }),
-            headers: { 'Content-Type': 'application/json' },
+        log(`contacting authserver ${userinfourl}`);
+        const userdata = await fetch(userinfourl, {
+            method: 'get',
+            headers: {
+                Authorization: authtoken,
+            },
         }).then((res) => res.json());
-
-        const userdata = await userdataPromise;
 
         if (typeof userdata.ok !== 'undefined' && !userdata.ok) {
             if (userdata.error) {
