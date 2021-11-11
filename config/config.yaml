@@ -8,6 +8,6 @@ server:
   datasetpath: /tmp/datatomb
 
 authserver:
-  url: https://auth.spang-lab.de/api/v1/
+  url: https://auth.spang-lab.de/api/v1
   usergroup: datatomb
   admingroup: datatombadmin

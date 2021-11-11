@@ -4,7 +4,8 @@ import {
 } from './logger.js';
 
 const isInGroup = (userdata, groupname) => {
-    const res = userdata.groups.find((g) => (g.name === groupname));
+    log(userdata);
+    const res = userdata.grouplist.find((g) => (g === groupname));
     if (res) {
         return true;
     }
@@ -16,20 +17,21 @@ export default async (authserverconfig, authtoken) => {
         const userinfourl = `${url}/user/info`;
 
         log(`contacting authserver ${userinfourl}`);
-        const userdata = await fetch(userinfourl, {
+        const response = await fetch(userinfourl, {
             method: 'get',
             headers: {
                 Authorization: authtoken,
             },
         }).then((res) => res.json());
 
-        if (typeof userdata.ok !== 'undefined' && !userdata.ok) {
-            if (userdata.error) {
-                throw new Error(`authserver returned: ${userdata.error}`);
+        if (typeof response.ok !== 'undefined' && !response.ok) {
+            if (response.error) {
+                throw new Error(`authserver returned: ${response.error}`);
             } else {
                 throw new Error('authserver returned generic error.');
             }
         }
+        const userdata = response.data;
 
         log(`user ${userdata.sub} authenticated.`);
 
