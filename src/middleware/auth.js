@@ -6,7 +6,7 @@ import {
 export default async (ctx, next) => {
     let authtoken = ctx.header.authorization;
     // for backwards compatibility, we add a "Bearer" if there is just one token word:
-    if (authtoken.split(' ').length < 2) {
+    if (authtoken && authtoken.split(' ').length < 2) {
         authtoken = `Bearer ${authtoken}`;
     }
 
