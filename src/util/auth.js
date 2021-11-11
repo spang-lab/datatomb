@@ -6,7 +6,6 @@ import {
 } from './logger.js';
 
 const isInGroup = (userdata, groupname) => {
-    log(userdata);
     const res = userdata.grouplist.find((g) => (g === groupname));
     if (res) {
         return true;
