@@ -9,7 +9,7 @@ export default async (ctx, next) => {
         500,
         'no dsetid in context.');
     const reFull = /^[0-9a-f]{64}$/;
-    const reSplit = /^([0-9a-f]+)(\.[a-z]*)?/;
+    const reSplit = /^([^.]+)(\.[a-z]*)?/;
     const [, id, ext] = dsetid.match(reSplit);
     ctx.params.filesuffix = ext;
     if (id.match(reFull)) {
