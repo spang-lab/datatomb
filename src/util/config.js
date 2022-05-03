@@ -26,6 +26,19 @@ const getSecrets = () => {
     return secrets;
 };
 
+const getAuthconfig = async (data) => {
+    if (data.authentication.kind === 'file') {
+        return {
+            kind: 'file',
+            users: JSON.parse(await fsPromise.readFile(data.authentication.userfile))
+        };
+} else if (data.authentication.kind === 'acrux') {
+        return data.authentication;
+    } else {
+        throw new Error('Unsupported authentication method');
+    }
+};
+
 export const createConfig = async () => {
     log('Loading configuration...');
     const data = await loadFile('config/config.yaml');
@@ -34,6 +47,7 @@ export const createConfig = async () => {
     data.packageVersion = pkgInfo.version;
     const secrets = await getSecrets();
     data.secrets = secrets;
+    data.authentication = await getAuthconfig(data);
     log('Config loaded successfully');
     config = data;
     return config;

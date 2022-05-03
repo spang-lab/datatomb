@@ -1,29 +1,32 @@
 # datatomb
 
-HTTP server for storing data sets.
+HTTP server for storing and retrieving data sets and associated metadata.
 
-## idea
-This server is a data- and metadataprovider for [glacier](https://gitlab.spang-lab.de/jsimeth/glacier). It accepts dataset up- and downloads by authenticated users. 
-
-### Immutability
-It is important to realize that data sets are immutable once they have been published. This is necessary to ensure the integrity of downstream analyses. Therefore, there are only two roles: creating datasets and reading datasets. Deletion will be possible but is only intended to remove entire chains of datasets or orphaned datasets. It is not possible to modify datasets (also not their metadata), if such a modified dataset is necessary, it has to be uploaded as a new dataset (and future analysis must be based on this new dataset).
+## Ideas and concepts
+This server is a data- and metadataprovider for [glacier](https://gitlab.spang-lab.de/jsimeth/glacier) and [diggeR](https://gitlab.spang-lab.de/jsimeth/digger). It accepts dataset up- and downloads by authenticated users. 
 
 ### Dataset handles
-handles to datasets are hashes (see glacier), not human-readable names as these may be used several times. It is still possible to give names to datasets and search for them.
+handles to datasets are their sha25sum hashes, not human-readable names as these may be non-unique. It is still possible to give alias names to datasets and search for them. This concept means that datasets are referred to by their contents and not by their names (adressing by content, [content-addressable storage](https://en.wikipedia.org/wiki/Content-addressable_storage)) and ensures that references to a dataset don't change over time. Also, a hash is always recalculable and so metadata to a given file can be retrieved without knowing its id on the server.
 
 ### Chains of Datasets
-Often, data does not come out of nowhere, it is derived from other data. Therefore, datatomb stores a tree like structure and every dataset usually has one or more "parent" datasets (There may be no parent when the data is freshly created).
+Often, data does not come out of nowhere, it is derived from other data. Therefore, datatomb is able to store a tree-like structure and every dataset usually has one or more "parent" datasets (There may be no parent when the data is freshly created / uploaded).
 
-### Metadata and Logging
-Along with the data, some metadata is stored. Searching datasets is based on this metadata rather than searching in the datasets itself. Whenever a dataset is downloaded, a log of who and when downloaded the dataset is kept (it should be possible to disable this). The owner of a dataset can see the log.
+### Metadata and logging
+Along with the data, some metadata is stored. Searching datasets is based on this metadata rather than searching in the datasets itself. Whenever a dataset is downloaded, a log of who and when downloaded the dataset is kept (it should be possible to disable this). The owner of a dataset can see the log. Make sure this is covered by your GDPR consent.
 
-### Possible feature: Roles and Permissions
-In a first step, there are only two roles: Owner / user and admin. The admin may do anything, normal users may push and download any dataset (even if it is not theirs!) and delete their own datasets. They may also see the access history of their own datasets. One may do this more finegrainedly such that the owner of a dataset can decide who exactly can download their datasets.
+### Searching
+All readable datasets are easily discoverable by searching through all metadata fields.
 
-### Possible feature: Browsing datasets
-A frontend may be added to search for datasets other than over the API.
+### Access controls
+#### Roles and Permissions
+Currently, there are only two roles: Owner / user and admin. The admin may do anything, normal users may push and download any dataset (even if it is not theirs!) and delete their own datasets. They may also see the access history of their own datasets. 
+
+#### Private, internal and public datasets
+Private datasets can only be downloaded and modified by their creators ("owners") and admins. Internal datasets can be downloaded by all authenticated users (but modified only by owners and admins) and public data sets may be downloaded by everybody without authentication.
 
 ## Server config
+See the [config file for an example](config/config.yaml).
+
 ### server
   - `port` the port on which the server is listening for requests.
   - `datasetpath` the path where datasets are being stored.
@@ -35,18 +38,45 @@ A frontend may be added to search for datasets other than over the API.
 
 Database secrets must be provided in environment variables `POSTGRES_USER` and `POSTGRES_PASSWORD`
 
-### authserver
+### authentication
+The key `kind` may either be `file` or `acrux`.
+
+#### acrux
+If an authentication server is used, the following fields must be set:
+
   - `url` full url of token endpoint of the authserver.
   - `usergroup` name of the group that is allowed to access datatomb
   - `admingroup` name of the group that administers datatomb
 
-## Authentification
-Requests must contain a header with an access token issued by the auth server. datatomb validates this token and, in later versions, may cache the result for a certain period of time if successful. For this time frame, this token is valid.
+#### password based authentication
+Instead of using the authentication server also simple password-based login is possible, mainly for testing. To this end, a user file must be maintained by an admin and referenced in the config: `userfile` (gives the path to the file). The file should have the following structure: 
+
+```json
+[
+  "username": {
+    "password": "passwordhash",
+    "role": "user"
+  },
+  <...>
+]
+```
+where username may be any well behaved string, password is a suitable password hash and role may be either `user` or `admin`.
+
+**Note**: It is the admin's responsibility to ensure a transport security and appropriate hashing. This is meant mostly for testing and not for productive use!
+
+## Authentication
+Requests must contain a header with an access token issued by the auth server. datatomb validates this token and may cache the result for a certain period of time if successful. For this time frame, this token is valid.
 
 For authentication, the header `Authorization: <token>` must be present. Note that some datasets may be public and no authentication is necessary to access these.
 
+See "password based authentication" above for password logins. Also in this case the login credentials must be sent with the authorization header and base46 encoded. For example the following would generate a authorization header for a user `user` with a clear text password `1234`:
+
+``` bash
+echo -n "user,1234" | base64
+```
+
 ## API endpoints
-Below is prefixed with `/api/v1/`.
+Everything below is prefixed with `/api/v1/`.
 
 ### `GET /meta/<hash>`
 returns all metadata of `<hash>` as json object.
