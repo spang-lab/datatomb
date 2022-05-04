@@ -8,7 +8,7 @@ server:
   datasetpath: /tmp/datatomb
 
 authentication:
-  kind: file
+  kind: acrux
 # only used if kind = acrux
   url: https://auth.spang-lab.de/api/v1
   usergroup: datatomb
