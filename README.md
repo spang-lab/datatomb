@@ -3,7 +3,7 @@
 HTTP server for storing and retrieving data sets and associated metadata.
 
 ## Ideas and concepts
-This server is a data- and metadataprovider for [glacier](https://gitlab.spang-lab.de/jsimeth/glacier) and [diggeR](https://gitlab.spang-lab.de/jsimeth/digger). It accepts dataset up- and downloads by authenticated users. 
+This server is a data- and metadataprovider for [glacier](https://gitlab.spang-lab.de/jsimeth/glacier) and [diggeR](https://github.com/spang-lab/digger). It accepts dataset up- and downloads by authenticated users. 
 
 ### Dataset handles
 handles to datasets are their sha25sum hashes, not human-readable names as these may be non-unique. It is still possible to give alias names to datasets and search for them. This concept means that datasets are referred to by their contents and not by their names (adressing by content, [content-addressable storage](https://en.wikipedia.org/wiki/Content-addressable_storage)) and ensures that references to a dataset don't change over time. Also, a hash is always recalculable and so metadata to a given file can be retrieved without knowing its id on the server.
