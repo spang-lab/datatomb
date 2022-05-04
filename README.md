@@ -75,6 +75,16 @@ See "password based authentication" above for password logins. Also in this case
 echo -n "user,1234" | base64
 ```
 
+## Installation
+just run `npm install && npm start`.
+
+To try it out, you can use the docker compose file which will set up the required postgres database automatically (but non-persistent!):
+
+``` bash
+podman-compose up
+```
+(or similarly `docker-compose up`). For rootless podman, make sure you have the dnsname plugin installed and activated for the networks. The datatomb server will be available at `localhost:8088`
+
 ## API endpoints
 Everything below is prefixed with `/api/v1/`.
 

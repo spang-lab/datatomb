@@ -1,0 +1,17 @@
+database:
+  host: db
+  database: default
+  port: 5432
+
+server:
+  port: 8088
+  datasetpath: /tmp/datatomb
+
+authentication:
+  kind: acrux
+# only used if kind = acrux
+  url: https://auth.spang-lab.de/api/v1
+  usergroup: datatomb
+  admingroup: datatombadmin
+# only used if kind = file
+  userfile: config/users.json

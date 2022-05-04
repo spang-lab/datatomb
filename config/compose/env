@@ -1,0 +1,3 @@
+POSTGRES_USER=datatomb_test
+POSTGRES_PASSWORD=nam3bi0f
+POSTGRES_DB=default
