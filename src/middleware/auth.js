@@ -28,7 +28,7 @@ export default async (ctx, next) => {
 
     if (config.authentication.kind === 'acrux') {
         try {
-            ctx.state.authdata = await authenticate(config.authserver, authtoken);
+            ctx.state.authdata = await authenticate(config.authentication, authtoken);
         } catch (e) {
             ctx.throw(401, e);
         }
